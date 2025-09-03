@@ -6,7 +6,7 @@ WORKDIR /app
 
 # Copy gradle files first for better caching
 COPY gradle/ gradle/
-COPY gradlew gradlew.bat build.gradle.kts settings.gradle.kts gradle.properties ./
+COPY gradlew gradlew.bat build.gradle.kts settings.gradle.kts ./
 
 # Set JAVA_HOME for gradle
 ENV JAVA_HOME=/opt/java/openjdk
