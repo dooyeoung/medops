@@ -8,7 +8,7 @@ services:
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: root
-      MONGO_INITDB_DATABASE: medicrm
+      MONGO_INITDB_DATABASE: medops
     ports:
       - "27017:27017"
     volumes:
@@ -27,19 +27,35 @@ services:
     networks:
       - medops-network
 
-  app:
+  app-local:
     build: .
     container_name: medops-app
+    profiles: ["local"]
     restart: unless-stopped
-    environment:
-      SPRING_PROFILES_ACTIVE: dev
-      MONGODB_HOST: mongodb
-      REDIS_HOST: redis
+    env_file:
+      - .env.local
     ports:
       - "8080:8080"
     depends_on:
       - mongodb
       - redis
+    networks:
+      - medops-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  app-cloud:
+    build: .
+    container_name: medops-app
+    profiles: ["cloud"]
+    restart: unless-stopped
+    env_file:
+      - .env.cloud
+    ports:
+      - "8080:8080"
     networks:
       - medops-network
     healthcheck:
