@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.math.BigDecimal;
@@ -26,8 +27,6 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class HospitalUseCaseTest {
-
-    @Mock private PasswordEncoder passwordEncoder;
     @Mock private SaveHospitalPort saveHospitalPort;
     @Mock private SaveAdminPort saveAdminPort;
     @Mock private LoadHospitalPort loadHospitalPort;
@@ -36,6 +35,8 @@ class HospitalUseCaseTest {
     @Mock private BusinessHourUseCase businessHourUseCase;
     @Mock private TreatmentProductUseCase treatmentProductUseCase;
 
+    private PasswordEncoder passwordEncoder;
+
     private HospitalUseCase hospitalUseCase;
 
     private Hospital testHospital;
@@ -43,6 +44,7 @@ class HospitalUseCaseTest {
 
     @BeforeEach
     void setUp() {
+        passwordEncoder = new BCryptPasswordEncoder();
         hospitalUseCase = new HospitalService(
             passwordEncoder,
             saveHospitalPort,
