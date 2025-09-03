@@ -102,7 +102,7 @@ class HospitalUseCaseTest {
         verify(saveAdminPort).saveAdmin(argThat(admin -> 
             admin.getEmail().equals("admin@test.com") &&
             admin.getName().equals("김관리자") &&
-            admin.getPassword().equals("password123") &&
+            passwordEncoder.matches("password123", admin.getPassword()) &&
             admin.getRole() == AdminRole.ADMIN &&
             admin.getHospital().equals(testHospital)
         ));
