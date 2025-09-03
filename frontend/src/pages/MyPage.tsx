@@ -127,15 +127,15 @@ export default function MyPage() {
 
       {eventsLoading && <div className="text-center">Loading events...</div>}
       {eventsError && <div className="text-red-500 text-center">Error: {eventsError}</div>}
-      {!eventsLoading && userEvents.length === 0 && !eventsError && (
-        <div className="text-center text-gray-500">No events found for this user.</div>
-      )}
 
       <Card className="mt-4">
         <CardHeader>
           <CardTitle className="text-2xl">예약 내역</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
+          {!eventsLoading && userEvents.length === 0 && !eventsError && (
+            <div className="text-center text-gray-500">예약 내역이 없습니다.</div>
+          )}
           {!eventsLoading && userEvents.length > 0 && (
             <>
               {userEvents.map((event) => (
