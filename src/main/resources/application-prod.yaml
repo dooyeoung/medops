@@ -1,0 +1,24 @@
+spring:
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD}
+      ssl: true
+
+    mongodb:
+      uri: ${MONGODB_URI}
+      # 또는 개별 설정
+      host: ${MONGODB_HOST}
+      port: ${MONGODB_PORT:27017}
+      database: ${MONGODB_DATABASE:medicrm}
+      username: ${MONGODB_USERNAME}
+      password: ${MONGODB_PASSWORD}
+      authentication-database: ${MONGODB_AUTH_DB:admin}
+
+logging:
+  level:
+    org.springframework.security: INFO
+    org.springframework.data.mongodb.core.MongoTemplate: INFO
+    com.crm.adapter.out.persistence.mongodb: INFO
+    root: WARN
