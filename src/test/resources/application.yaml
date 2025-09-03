@@ -1,0 +1,9 @@
+de:
+  flapdoodle:
+    mongodb:
+      embedded:
+        version: 4.4.18
+
+secret:
+  key: sdjfionowmiowe!@#niviwemci1238f9@SFSDFSiemiflsibisl!23gficfmbisoqofjioeF#isosdf-sfenioisemvie
+  expiration_hours: 1

@@ -1,0 +1,29 @@
+spring:
+  application:
+    name: crm-user
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+    mongodb:
+      host: localhost
+      port: 27017
+      database: medicrm
+      username: root
+      password: root
+      authentication-database: admin
+
+logging:
+  level:
+    org.springframework.security: DEBUG
+    org.springframework.data.mongodb.core.MongoTemplate: DEBUG
+    com.crm.adapter.out.persistence.mongodb: DEBUG
+
+server:
+  port: 8080
+
+secret:
+  key: userionowmiowe!@#niviwemci1238f9@SFSDFSiemiflsibisl!23gficfmbisoqofjioeF#isosdf-sfenioisemvie
+  expiration_hours: 1
