@@ -218,7 +218,6 @@ export default function ReservationListTable({
         currentNote,
       );
       setIsNoteModalOpen(false);
-      toast.success('메모가 저장되었습니다.');
     } catch (err) {
       console.error('Failed to save note:', err);
       toast.error('노트 내용 저장 실패.', {
@@ -357,155 +356,156 @@ export default function ReservationListTable({
     <>
       <Toaster expand={true} richColors position="top-center" />
       <div className="p-0 text-sm w-full border border-t rounded-xl shadow-sm">
-        <Table className="w-full">
-          <TableHeader>
-            <TableRow>
-              <TableHead></TableHead>
-              <TableHead>고객</TableHead>
-              <TableHead>요청사항</TableHead>
-              <TableHead>진료 내용</TableHead>
-              <TableHead>담당의사</TableHead>
-              <TableHead>상태</TableHead>
-              <TableHead>내부 메모</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {isLoading ? (
+        {isLoading ? (
+          <div className="flex items-center justify-center py-8">
+            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+            <span className="ml-2 text-sm text-gray-500">정보를 불러오는 중...</span>
+          </div>
+        ) : (
+          <Table className="w-full">
+            <TableHeader>
               <TableRow>
-                <TableCell colSpan={7} className="text-center">
-                  로딩 중...
-                </TableCell>
+                <TableHead></TableHead>
+                <TableHead>고객</TableHead>
+                <TableHead>요청사항</TableHead>
+                <TableHead>진료 내용</TableHead>
+                <TableHead>담당의사</TableHead>
+                <TableHead>상태</TableHead>
+                <TableHead>내부 메모</TableHead>
               </TableRow>
-            ) : error ? (
-              <TableRow>
-                <TableCell colSpan={7} className="text-center text-red-500">
-                  {error}
-                </TableCell>
-              </TableRow>
-            ) : reservations.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={7} className="text-center">
-                  해당 날짜에 예약이 없습니다.
-                </TableCell>
-              </TableRow>
-            ) : (
-              groupedReservations.map((group, groupIndex) => {
-                return (
-                  <>
-                    {/* 날짜 헤더 행 */}
-                    <TableRow key={`date-${group.date}`} className="bg-gray-50">
-                      <TableCell colSpan={7} className="text-gray-700 py-3">
-                        <Dialog>
-                          <DialogTrigger className="w-full h-full text-left cursor-pointer">
-                            {formatDate(group.reservations[0].startTime)}
-                          </DialogTrigger>
-                          <DialogContent className="min-w-4xl">
-                            <DialogTitle></DialogTitle>
-                            <div style={{ height: '80vh' }}>
-                              <MedicalRecordTimeTable
-                                hospitalId={hospitalId}
-                                selectedDate={new Date(group.reservations[0].startTime).toISOString().slice(0, 10)}
-                              />
-                            </div>
-                          </DialogContent>
-                        </Dialog>
-                      </TableCell>
-                    </TableRow>
-                    {/* 해당 날짜의 예약들 */}
-                    {group.reservations.map((reservation) => (
-                      <TableRow key={reservation.id} className="cursor-pointer hover:bg-muted/50">
-                        <TableCell className="font-medium pl-6">
-                          {`${formatTime(reservation.startTime)} ~ ${formatTime(reservation.endTime)}`}
-                        </TableCell>
-                        <TableCell>{reservation.userName}</TableCell>
-                        <TableCell className="max-w-xs truncate">{reservation.userMemo}</TableCell>
-                        <TableCell>{reservation.treatmentProductName}</TableCell>
-                        <TableCell
-                          className="cursor-pointer hover:bg-muted/50"
-                          onClick={() => handleDoctorAssignClick(reservation)}
-                        >
-                          <span className={reservation.doctorName ? '' : 'text-muted-foreground'}>
-                            {reservation.doctorName || '담당의사 선택'}
-                          </span>
-                        </TableCell>
-                        <TableCell className="flex">
-                          <Popover>
-                            <PopoverTrigger>{getStatusBadge(reservation.status)}</PopoverTrigger>
-                            <PopoverContent>
-                              <div className="flex justify-between">
-                                <Select value={selectedStatus || ''} onValueChange={setSelectedStatus}>
-                                  <SelectTrigger className="w-[180px]">
-                                    <SelectValue placeholder="상태 변경 선택" />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    {/* PENDING일 때는 RESERVED, CANCELED만 선택 가능 */}
-                                    {reservation.status === 'PENDING' && (
-                                      <>
-                                        <SelectItem value="RESERVED">접수</SelectItem>
-                                        <SelectItem value="CANCELED">취소</SelectItem>
-                                      </>
-                                    )}
-                                    {/* RESERVED일 때는 CANCELED, PENDING, COMPLETED 선택 가능 */}
-                                    {reservation.status === 'RESERVED' && (
-                                      <>
-                                        <SelectItem value="CANCELED">취소</SelectItem>
-                                        <SelectItem value="PENDING">대기</SelectItem>
-                                        <SelectItem value="COMPLETED">완료</SelectItem>
-                                      </>
-                                    )}
-                                    {/* COMPLETED일 때는 CANCELED, RESERVED만 선택 가능 */}
-                                    {reservation.status === 'COMPLETED' && (
-                                      <>
-                                        <SelectItem value="CANCELED">취소</SelectItem>
-                                        <SelectItem value="RESERVED">접수</SelectItem>
-                                      </>
-                                    )}
-                                    {/* CANCELED일 때도 다른 상태로 변경할 수 있도록 */}
-                                    {reservation.status === 'CANCELED' && (
-                                      <>
-                                        <SelectItem value="PENDING">대기</SelectItem>
-                                        <SelectItem value="RESERVED">접수</SelectItem>
-                                      </>
-                                    )}
-                                  </SelectContent>
-                                </Select>
-                                <Button
-                                  onClick={() => {
-                                    if (selectedStatus === 'RESERVED') {
-                                      onConfirm(reservation.id, reservation.userId);
-                                    } else if (selectedStatus == 'PENDING') {
-                                      onPending(reservation.id, reservation.userId);
-                                    } else if (selectedStatus == 'CANCELED') {
-                                      onCancel(reservation.id, reservation.userId);
-                                    } else if (selectedStatus == 'COMPLETED') {
-                                      onComplete(reservation.id, reservation.userId);
-                                    }
-                                    setSelectedStatus('');
-                                  }}
-                                >
-                                  변경
-                                </Button>
+            </TableHeader>
+            <TableBody>
+              {error ? (
+                <TableRow>
+                  <TableCell colSpan={7} className="text-center text-red-500">
+                    {error}
+                  </TableCell>
+                </TableRow>
+              ) : reservations.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={7} className="text-center">
+                    해당 날짜에 예약이 없습니다.
+                  </TableCell>
+                </TableRow>
+              ) : (
+                groupedReservations.map((group, groupIndex) => {
+                  return (
+                    <>
+                      {/* 날짜 헤더 행 */}
+                      <TableRow key={`date-${group.date}`} className="bg-gray-50">
+                        <TableCell colSpan={7} className="text-gray-700 py-3">
+                          <Dialog>
+                            <DialogTrigger className="w-full h-full text-left cursor-pointer">
+                              {formatDate(group.reservations[0].startTime)}
+                            </DialogTrigger>
+                            <DialogContent className="min-w-4xl">
+                              <DialogTitle></DialogTitle>
+                              <div style={{ height: '80vh' }}>
+                                <MedicalRecordTimeTable
+                                  hospitalId={hospitalId}
+                                  selectedDate={new Date(group.reservations[0].startTime).toISOString().slice(0, 10)}
+                                />
                               </div>
-                            </PopoverContent>
-                          </Popover>
-
-                          {reservation.status === 'COMPLETED' && (
-                            <Button variant="outline" onClick={() => handleNextReservationClick(reservation)}>
-                              <ClipboardPlus />
-                            </Button>
-                          )}
-                        </TableCell>
-                        <TableCell onClick={() => handleNoteClick(reservation)} className="">
-                          {reservation.note}
+                            </DialogContent>
+                          </Dialog>
                         </TableCell>
                       </TableRow>
-                    ))}
-                  </>
-                );
-              })
-            )}
-          </TableBody>
-        </Table>
+                      {/* 해당 날짜의 예약들 */}
+                      {group.reservations.map((reservation) => (
+                        <TableRow key={reservation.id} className="cursor-pointer hover:bg-muted/50">
+                          <TableCell className="font-medium pl-6">
+                            {`${formatTime(reservation.startTime)} ~ ${formatTime(reservation.endTime)}`}
+                          </TableCell>
+                          <TableCell>{reservation.userName}</TableCell>
+                          <TableCell className="max-w-xs truncate">{reservation.userMemo}</TableCell>
+                          <TableCell>{reservation.treatmentProductName}</TableCell>
+                          <TableCell
+                            className="cursor-pointer hover:bg-muted/50"
+                            onClick={() => handleDoctorAssignClick(reservation)}
+                          >
+                            <span className={reservation.doctorName ? '' : 'text-muted-foreground'}>
+                              {reservation.doctorName || '담당의사 선택'}
+                            </span>
+                          </TableCell>
+                          <TableCell className="flex">
+                            <Popover>
+                              <PopoverTrigger>{getStatusBadge(reservation.status)}</PopoverTrigger>
+                              <PopoverContent>
+                                <div className="flex justify-between">
+                                  <Select value={selectedStatus || ''} onValueChange={setSelectedStatus}>
+                                    <SelectTrigger className="w-[180px]">
+                                      <SelectValue placeholder="상태 변경 선택" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      {/* PENDING일 때는 RESERVED, CANCELED만 선택 가능 */}
+                                      {reservation.status === 'PENDING' && (
+                                        <>
+                                          <SelectItem value="RESERVED">접수</SelectItem>
+                                          <SelectItem value="CANCELED">취소</SelectItem>
+                                        </>
+                                      )}
+                                      {/* RESERVED일 때는 CANCELED, PENDING, COMPLETED 선택 가능 */}
+                                      {reservation.status === 'RESERVED' && (
+                                        <>
+                                          <SelectItem value="CANCELED">취소</SelectItem>
+                                          <SelectItem value="PENDING">대기</SelectItem>
+                                          <SelectItem value="COMPLETED">완료</SelectItem>
+                                        </>
+                                      )}
+                                      {/* COMPLETED일 때는 CANCELED, RESERVED만 선택 가능 */}
+                                      {reservation.status === 'COMPLETED' && (
+                                        <>
+                                          <SelectItem value="CANCELED">취소</SelectItem>
+                                          <SelectItem value="RESERVED">접수</SelectItem>
+                                        </>
+                                      )}
+                                      {/* CANCELED일 때도 다른 상태로 변경할 수 있도록 */}
+                                      {reservation.status === 'CANCELED' && (
+                                        <>
+                                          <SelectItem value="PENDING">대기</SelectItem>
+                                          <SelectItem value="RESERVED">접수</SelectItem>
+                                        </>
+                                      )}
+                                    </SelectContent>
+                                  </Select>
+                                  <Button
+                                    onClick={() => {
+                                      if (selectedStatus === 'RESERVED') {
+                                        onConfirm(reservation.id, reservation.userId);
+                                      } else if (selectedStatus == 'PENDING') {
+                                        onPending(reservation.id, reservation.userId);
+                                      } else if (selectedStatus == 'CANCELED') {
+                                        onCancel(reservation.id, reservation.userId);
+                                      } else if (selectedStatus == 'COMPLETED') {
+                                        onComplete(reservation.id, reservation.userId);
+                                      }
+                                      setSelectedStatus('');
+                                    }}
+                                  >
+                                    변경
+                                  </Button>
+                                </div>
+                              </PopoverContent>
+                            </Popover>
+
+                            {reservation.status === 'COMPLETED' && (
+                              <Button variant="outline" onClick={() => handleNextReservationClick(reservation)}>
+                                <ClipboardPlus />
+                              </Button>
+                            )}
+                          </TableCell>
+                          <TableCell onClick={() => handleNoteClick(reservation)} className="">
+                            {reservation.note}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </>
+                  );
+                })
+              )}
+            </TableBody>
+          </Table>
+        )}
       </div>
 
       {/* 다음 예약 설정 모달 */}

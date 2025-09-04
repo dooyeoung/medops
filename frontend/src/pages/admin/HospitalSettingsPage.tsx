@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getCurrentAdmin } from '@/api/admin';
 
@@ -10,29 +10,21 @@ import { Toaster } from 'sonner';
 
 export default function HospitalSettingsPage() {
   const [hospitalId, setHospitalId] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchHospitalSettings = async () => {
-      setIsLoading(true);
       try {
         const adminResponse = await getCurrentAdmin();
         setHospitalId(adminResponse.body.hospital.id);
       } catch (err: any) {
         console.log(err);
         navigate('/admin/login');
-      } finally {
-        setIsLoading(false);
       }
     };
 
     fetchHospitalSettings();
-  }, []);
-
-  if (isLoading) {
-    return <div className="container mx-auto py-8 text-center">Loading hospital settings...</div>;
-  }
+  }, [navigate]);
 
   return (
     <div className="w-full p-4 space-y-4">

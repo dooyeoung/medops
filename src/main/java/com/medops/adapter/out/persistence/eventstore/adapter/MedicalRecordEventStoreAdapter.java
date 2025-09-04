@@ -59,7 +59,7 @@ public class MedicalRecordEventStoreAdapter  implements MedicalRecordEventStoreP
         List<Object> events = documents.stream()
             .map(document -> {
                 try {
-                    Class<?> eventClass = Class.forName("com.crm.domain.event." + document.getEventType());
+                    Class<?> eventClass = Class.forName("com.medops.application.eventsourcing.event." + document.getEventType());
                     System.out.println("converting : " + eventClass);
                     return objectMapper.convertValue(document.getPayload(), eventClass);
                 } catch (Exception e) {

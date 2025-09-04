@@ -19,25 +19,31 @@ interface BusinessHour {
   closed: boolean;
 }
 interface Props {
-  hospitalId;
+  hospitalId: string | null;
 }
 export default function BusinessHourManagement({ hospitalId }: Props) {
   const [businessHours, setBusinessHours] = useState<BusinessHour[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [isBusinessHourModalOpen, setIsBusinessHourModalOpen] = useState(false);
   const [editingBusinessHour, setEditingBusinessHour] = useState<BusinessHour | null>(null);
 
   useEffect(() => {
+    const fetchBusinessHours = async () => {
+      if (!hospitalId) return;
+
+      setIsLoading(true);
+      try {
+        const businessHoursResponse = await getBusinessHoursByHospital(hospitalId);
+        setBusinessHours(businessHoursResponse.body || []);
+      } catch (error) {
+        console.error('Error fetching business hours:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
     fetchBusinessHours();
   }, [hospitalId]);
-
-  const fetchBusinessHours = async () => {
-    const businessHoursResponse = await getBusinessHoursByHospital(hospitalId);
-    if (businessHoursResponse.result.resultCode === 200) {
-      setBusinessHours(businessHoursResponse.body || []);
-    } else {
-      throw new Error(businessHoursResponse.result.resultMessage || 'Failed to fetch business hours.');
-    }
-  };
 
   const handleEditBusinessHour = (businessHour: BusinessHour) => {
     // 현재 설정된 영업시간을 복사해서 편집용으로 설정
@@ -160,47 +166,54 @@ export default function BusinessHourManagement({ hospitalId }: Props) {
           <CardDescription>요일별 영업시간과 점심시간을 설정하세요.</CardDescription>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>요일</TableHead>
-                <TableHead>영업시간</TableHead>
-                <TableHead>휴게시간</TableHead>
-                <TableHead className="text-right">작업</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {businessHours
-                .sort((a, b) => {
-                  const days = ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY'];
-                  return days.indexOf(a.dayOfWeek) - days.indexOf(b.dayOfWeek);
-                })
-                .map((hour) => (
-                  <TableRow key={hour.id}>
-                    <TableCell>{hour.dayOfWeek}</TableCell>
-                    {hour.closed ? (
-                      <TableCell colSpan={2} className="text-center text-muted-foreground">
-                        휴무일
+          {isLoading ? (
+            <div className="flex items-center justify-center py-8">
+              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+              <span className="ml-2 text-sm text-gray-500">정보를 불러오는 중...</span>
+            </div>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>요일</TableHead>
+                  <TableHead>영업시간</TableHead>
+                  <TableHead>휴게시간</TableHead>
+                  <TableHead className="text-right">작업</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {businessHours
+                  .sort((a, b) => {
+                    const days = ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY'];
+                    return days.indexOf(a.dayOfWeek) - days.indexOf(b.dayOfWeek);
+                  })
+                  .map((hour) => (
+                    <TableRow key={hour.id}>
+                      <TableCell>{hour.dayOfWeek}</TableCell>
+                      {hour.closed ? (
+                        <TableCell colSpan={2} className="text-center text-muted-foreground">
+                          휴무일
+                        </TableCell>
+                      ) : (
+                        <>
+                          <TableCell>
+                            {formatTimeDisplay(hour.openTime)} - {formatTimeDisplay(hour.closeTime)}
+                          </TableCell>
+                          <TableCell>
+                            {formatTimeDisplay(hour.breakStartTime)} - {formatTimeDisplay(hour.breakEndTime)}
+                          </TableCell>
+                        </>
+                      )}
+                      <TableCell className="text-right space-x-2">
+                        <Button variant="outline" size="sm" onClick={() => handleEditBusinessHour(hour)}>
+                          수정
+                        </Button>
                       </TableCell>
-                    ) : (
-                      <>
-                        <TableCell>
-                          {formatTimeDisplay(hour.openTime)} - {formatTimeDisplay(hour.closeTime)}
-                        </TableCell>
-                        <TableCell>
-                          {formatTimeDisplay(hour.breakStartTime)} - {formatTimeDisplay(hour.breakEndTime)}
-                        </TableCell>
-                      </>
-                    )}
-                    <TableCell className="text-right space-x-2">
-                      <Button variant="outline" size="sm" onClick={() => handleEditBusinessHour(hour)}>
-                        수정
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
-            </TableBody>
-          </Table>
+                    </TableRow>
+                  ))}
+              </TableBody>
+            </Table>
+          )}
         </CardContent>
       </Card>
       {/* 영업시간 수정 모달 */}

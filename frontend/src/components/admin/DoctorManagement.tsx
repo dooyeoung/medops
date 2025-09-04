@@ -18,10 +18,11 @@ import { toast } from 'sonner';
 import type { Doctor } from '@/types';
 
 interface Props {
-  hospitalId: string;
+  hospitalId: string | null;
 }
 export default function DoctorManagement({ hospitalId }: Props) {
   const [doctors, setDoctors] = useState<Doctor[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [isDoctorModalOpen, setIsDoctorModalOpen] = useState(false);
   const [newDoctorName, setNewDoctorName] = useState('');
   const [isEditDoctorModalOpen, setIsEditDoctorModalOpen] = useState(false);
@@ -29,17 +30,22 @@ export default function DoctorManagement({ hospitalId }: Props) {
   const [editDoctorName, setEditDoctorName] = useState('');
 
   useEffect(() => {
+    const fetchDoctors = async () => {
+      if (!hospitalId) return;
+
+      setIsLoading(true);
+      try {
+        const doctorsResponse = await getDoctorsByHospital(hospitalId);
+        setDoctors(doctorsResponse.body || []);
+      } catch (err: any) {
+        console.error('Failed to fetch doctors:', err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
     fetchDoctors();
   }, [hospitalId]);
-
-  const fetchDoctors = async () => {
-    try {
-      const doctorsResponse = await getDoctorsByHospital(hospitalId);
-      setDoctors(doctorsResponse.body || []);
-    } catch (err: any) {
-      console.error('Failed to fetch doctors:', err);
-    }
-  };
 
   const handleAddDoctor = async () => {
     if (!newDoctorName.trim() || !hospitalId) return;
@@ -157,47 +163,54 @@ export default function DoctorManagement({ hospitalId }: Props) {
           </div>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>이름</TableHead>
-                <TableHead>등록일</TableHead>
-                <TableHead>삭제일</TableHead>
-                <TableHead className="text-right">작업</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {doctors.length === 0 ? (
+          {isLoading ? (
+            <div className="flex items-center justify-center py-8">
+              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+              <span className="ml-2 text-sm text-gray-500">정보를 불러오는 중...</span>
+            </div>
+          ) : (
+            <Table>
+              <TableHeader>
                 <TableRow>
-                  <TableCell colSpan={2} className="text-center text-muted-foreground">
-                    등록된 의사가 없습니다.
-                  </TableCell>
+                  <TableHead>이름</TableHead>
+                  <TableHead>등록일</TableHead>
+                  <TableHead>삭제일</TableHead>
+                  <TableHead className="text-right">작업</TableHead>
                 </TableRow>
-              ) : (
-                doctors.map((doctor) => (
-                  <TableRow key={doctor.id}>
-                    <TableCell>{doctor.name}</TableCell>
-                    <TableCell>{doctor.createdAt}</TableCell>
-                    <TableCell>{doctor.deletedAt}</TableCell>
-                    <TableCell className="text-right space-x-2">
-                      <Button variant="outline" size="sm" onClick={() => handleEditDoctor(doctor)}>
-                        수정
-                      </Button>
-                      {doctor.deletedAt ? (
-                        <Button variant="secondary" size="sm" onClick={() => handleRecover(doctor.id, doctor.name)}>
-                          복구
-                        </Button>
-                      ) : (
-                        <Button variant="destructive" size="sm" onClick={() => handleDelete(doctor.id, doctor.name)}>
-                          삭제
-                        </Button>
-                      )}
+              </TableHeader>
+              <TableBody>
+                {doctors.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={2} className="text-center text-muted-foreground">
+                      등록된 의사가 없습니다.
                     </TableCell>
                   </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
+                ) : (
+                  doctors.map((doctor) => (
+                    <TableRow key={doctor.id}>
+                      <TableCell>{doctor.name}</TableCell>
+                      <TableCell>{doctor.createdAt}</TableCell>
+                      <TableCell>{doctor.deletedAt}</TableCell>
+                      <TableCell className="text-right space-x-2">
+                        <Button variant="outline" size="sm" onClick={() => handleEditDoctor(doctor)}>
+                          수정
+                        </Button>
+                        {doctor.deletedAt ? (
+                          <Button variant="secondary" size="sm" onClick={() => handleRecover(doctor.id, doctor.name)}>
+                            복구
+                          </Button>
+                        ) : (
+                          <Button variant="destructive" size="sm" onClick={() => handleDelete(doctor.id, doctor.name)}>
+                            삭제
+                          </Button>
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          )}
         </CardContent>
       </Card>
       {/* 의사 수정 모달 */}

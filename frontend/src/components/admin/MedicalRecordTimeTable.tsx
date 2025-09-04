@@ -58,6 +58,12 @@ export default function MedicalRecordTimeTable({ hospitalId, selectedDate }: Pro
   const [reservations, setReservations] = useState<Reservation[]>([]);
   const [businessHours, setBusinessHours] = useState<BusinessHours[]>([]);
   const [currentTime, setCurrentTime] = useState(new Date());
+  const [isLoading, setIsLoading] = useState(true);
+  const [loadingStates, setLoadingStates] = useState({
+    businessHours: false,
+    treatmentProducts: false,
+    reservations: false,
+  });
   const days = ['SUNDAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY'];
 
   // 현재 시간을 1분마다 업데이트
@@ -68,6 +74,12 @@ export default function MedicalRecordTimeTable({ hospitalId, selectedDate }: Pro
 
     return () => clearInterval(timer);
   }, []);
+
+  // 전체 로딩 상태 관리
+  useEffect(() => {
+    const allDataLoaded = Object.values(loadingStates).every((state) => !state);
+    setIsLoading(!allDataLoaded);
+  }, [loadingStates]);
 
   useEffect(() => {
     const generateTimeSlots = () => {
@@ -250,11 +262,15 @@ export default function MedicalRecordTimeTable({ hospitalId, selectedDate }: Pro
   useEffect(() => {
     const fetchBusinessHours = async () => {
       if (!hospitalId) return;
+
+      setLoadingStates((prev) => ({ ...prev, businessHours: true }));
       try {
         const response = await getBusinessHoursByHospital(hospitalId);
         setBusinessHours(response.body);
       } catch (error) {
         console.error('Error fetching business hours:', error);
+      } finally {
+        setLoadingStates((prev) => ({ ...prev, businessHours: false }));
       }
     };
     fetchBusinessHours();
@@ -263,6 +279,8 @@ export default function MedicalRecordTimeTable({ hospitalId, selectedDate }: Pro
   useEffect(() => {
     const fetchTreatmentProducts = async () => {
       if (!hospitalId) return;
+
+      setLoadingStates((prev) => ({ ...prev, treatmentProducts: true }));
       try {
         const response = await getTreatmentProductsByHospital(hospitalId);
         const fetchedServices = response.body.map((product: any) => ({
@@ -275,6 +293,8 @@ export default function MedicalRecordTimeTable({ hospitalId, selectedDate }: Pro
         setServices(fetchedServices);
       } catch (error) {
         console.error('Error fetching treatment products:', error);
+      } finally {
+        setLoadingStates((prev) => ({ ...prev, treatmentProducts: false }));
       }
     };
     fetchTreatmentProducts();
@@ -283,6 +303,8 @@ export default function MedicalRecordTimeTable({ hospitalId, selectedDate }: Pro
   useEffect(() => {
     const fetchReservations = async () => {
       if (!hospitalId) return;
+
+      setLoadingStates((prev) => ({ ...prev, reservations: true }));
       try {
         const startDate = new Date(selectedDate);
         startDate.setHours(0, 0, 0, 0);
@@ -301,6 +323,8 @@ export default function MedicalRecordTimeTable({ hospitalId, selectedDate }: Pro
         setReservations(fetchedReservations);
       } catch (error) {
         console.error('Error fetching reservations:', error);
+      } finally {
+        setLoadingStates((prev) => ({ ...prev, reservations: false }));
       }
     };
     fetchReservations();
@@ -674,6 +698,21 @@ export default function MedicalRecordTimeTable({ hospitalId, selectedDate }: Pro
       </div>
     );
   };
+
+  // 로딩 상태일 때 표시할 컴포넌트
+  if (isLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center h-full min-h-[400px] space-y-4">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        <div className="text-gray-500 text-sm">타임테이블을 불러오는 중...</div>
+        <div className="text-xs text-gray-400 space-y-1">
+          {loadingStates.businessHours && <div>• 영업시간 정보 로딩 중</div>}
+          {loadingStates.treatmentProducts && <div>• 진료 항목 로딩 중</div>}
+          {loadingStates.reservations && <div>• 예약 정보 로딩 중</div>}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>

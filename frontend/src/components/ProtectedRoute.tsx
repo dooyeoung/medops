@@ -9,7 +9,12 @@ export default function ProtectedRoute({ allowedRoles }: ProtectedRouteProps) {
   const { user, admin, isLoading, role } = useAuth();
 
   if (isLoading) {
-    return <div className="text-center py-8">Loading authentication...</div>;
+    return (
+      <div className="flex items-center justify-center py-8">
+        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+        <span className="ml-2 text-sm text-gray-500">Loading authentication...</span>
+      </div>
+    );
   }
 
   if (!user && !admin) {

@@ -523,10 +523,9 @@ export default function DashboardPage() {
 
   if (isLoading) {
     return (
-      <div className="w-full p-4">
-        <div className="flex items-center justify-center min-h-[400px]">
-          <div className="text-lg">대시보드 로딩 중...</div>
-        </div>
+      <div className="flex items-center justify-center py-8">
+        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+        <span className="ml-2 text-sm text-gray-500">정보를 불러오는 중...</span>
       </div>
     );
   }

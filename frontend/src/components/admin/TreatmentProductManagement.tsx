@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -94,26 +94,31 @@ function TreatmentProductForm({
 }
 
 interface Props {
-  hospitalId;
+  hospitalId: string | null;
 }
 
 export default function TreatmentProductManagement({ hospitalId }: Props) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [treatmentProducts, setTreatmentProducts] = useState<TreatmentProduct[]>([]);
   const [editingTreatmentProduct, setEditingTreatmentProduct] = useState<TreatmentProduct | null>(null);
 
-  useEffect(() => {
-    fetchTreatmentProducts();
-  }, [hospitalId]);
-
-  const fetchTreatmentProducts = async () => {
+  const fetchTreatmentProducts = useCallback(async () => {
+    if (!hospitalId) return;
+    setIsLoading(true);
     try {
       const productsResponse = await getTreatmentProductsByHospital(hospitalId);
       setTreatmentProducts(productsResponse.body || []);
     } catch (err: any) {
       console.error('Failed to fetch treatment products:', err);
+    } finally {
+      setIsLoading(false);
     }
-  };
+  }, [hospitalId]);
+
+  useEffect(() => {
+    fetchTreatmentProducts();
+  }, [fetchTreatmentProducts]);
 
   const openNewProductDialog = () => {
     setEditingTreatmentProduct(null);
@@ -190,53 +195,60 @@ export default function TreatmentProductManagement({ hospitalId }: Props) {
           </div>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>상품명</TableHead>
-                <TableHead>설명</TableHead>
-                <TableHead>시간당 인원</TableHead>
-                <TableHead>가격</TableHead>
-                <TableHead>등록일</TableHead>
-                <TableHead>삭제일</TableHead>
-                <TableHead className="text-right">작업</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {treatmentProducts.length === 0 ? (
+          {isLoading ? (
+            <div className="flex items-center justify-center py-8">
+              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+              <span className="ml-2 text-sm text-gray-500">정보를 불러오는 중...</span>
+            </div>
+          ) : (
+            <Table>
+              <TableHeader>
                 <TableRow>
-                  <TableCell colSpan={5} className="text-center">
-                    등록된 상품이 없습니다.
-                  </TableCell>
+                  <TableHead>상품명</TableHead>
+                  <TableHead>설명</TableHead>
+                  <TableHead>시간당 인원</TableHead>
+                  <TableHead>가격</TableHead>
+                  <TableHead>등록일</TableHead>
+                  <TableHead>삭제일</TableHead>
+                  <TableHead className="text-right">작업</TableHead>
                 </TableRow>
-              ) : (
-                treatmentProducts.map((treatmentProduct) => (
-                  <TableRow key={treatmentProduct.id}>
-                    <TableCell>{treatmentProduct.name}</TableCell>
-                    <TableCell>{treatmentProduct.description}</TableCell>
-                    <TableCell>{treatmentProduct.maxCapacity}명</TableCell>
-                    <TableCell>{treatmentProduct.price}</TableCell>
-                    <TableCell>{treatmentProduct.createdAt}</TableCell>
-                    <TableCell>{treatmentProduct.deletedAt}</TableCell>
-                    <TableCell className="text-right space-x-2">
-                      <Button variant="outline" size="sm" onClick={() => openEditProductDialog(treatmentProduct)}>
-                        수정
-                      </Button>
-                      {treatmentProduct.deletedAt ? (
-                        <Button variant="secondary" size="sm" onClick={() => handleRecover(treatmentProduct.id)}>
-                          복구
-                        </Button>
-                      ) : (
-                        <Button variant="destructive" size="sm" onClick={() => handleDelete(treatmentProduct.id)}>
-                          삭제
-                        </Button>
-                      )}
+              </TableHeader>
+              <TableBody>
+                {treatmentProducts.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={5} className="text-center">
+                      등록된 상품이 없습니다.
                     </TableCell>
                   </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
+                ) : (
+                  treatmentProducts.map((treatmentProduct) => (
+                    <TableRow key={treatmentProduct.id}>
+                      <TableCell>{treatmentProduct.name}</TableCell>
+                      <TableCell>{treatmentProduct.description}</TableCell>
+                      <TableCell>{treatmentProduct.maxCapacity}명</TableCell>
+                      <TableCell>{treatmentProduct.price}</TableCell>
+                      <TableCell>{treatmentProduct.createdAt}</TableCell>
+                      <TableCell>{treatmentProduct.deletedAt}</TableCell>
+                      <TableCell className="text-right space-x-2">
+                        <Button variant="outline" size="sm" onClick={() => openEditProductDialog(treatmentProduct)}>
+                          수정
+                        </Button>
+                        {treatmentProduct.deletedAt ? (
+                          <Button variant="secondary" size="sm" onClick={() => handleRecover(treatmentProduct.id)}>
+                            복구
+                          </Button>
+                        ) : (
+                          <Button variant="destructive" size="sm" onClick={() => handleDelete(treatmentProduct.id)}>
+                            삭제
+                          </Button>
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          )}
         </CardContent>
       </Card>
 

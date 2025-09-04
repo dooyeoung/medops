@@ -66,22 +66,22 @@ function AdminManagement({ hospitalId }: { hospitalId: string | null }) {
   const [isLoading, setIsLoading] = useState(true);
   const [isInviteDialogOpen, setIsInviteDialogOpen] = useState(false);
 
-  const fetchAdmins = async () => {
-    if (!hospitalId) return;
-
-    setIsLoading(true);
-    try {
-      const response = await getHospitalAdmins(hospitalId);
-      setAdmins(response.body);
-    } catch (error) {
-      toast.error('관리자 목록을 불러오는데 실패했습니다.');
-      console.error('Failed to fetch admins:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   useEffect(() => {
+    const fetchAdmins = async () => {
+      if (!hospitalId) return;
+
+      setIsLoading(true);
+      try {
+        const response = await getHospitalAdmins(hospitalId);
+        setAdmins(response.body);
+      } catch (error) {
+        toast.error('관리자 목록을 불러오는데 실패했습니다.');
+        console.error('Failed to fetch admins:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
     fetchAdmins();
   }, [hospitalId]);
 
@@ -108,20 +108,6 @@ function AdminManagement({ hospitalId }: { hospitalId: string | null }) {
     }
   };
 
-  if (isLoading) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle>관리자 관리</CardTitle>
-          <CardDescription>병원 관리자를 관리하세요</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="text-center py-8">로딩 중...</div>
-        </CardContent>
-      </Card>
-    );
-  }
-
   return (
     <>
       <Card>
@@ -133,8 +119,11 @@ function AdminManagement({ hospitalId }: { hospitalId: string | null }) {
           <Button onClick={() => setIsInviteDialogOpen(true)}>관리자 초대</Button>
         </CardHeader>
         <CardContent>
-          {admins.length === 0 ? (
-            <div className="text-center py-8 text-gray-500">등록된 관리자가 없습니다.</div>
+          {isLoading ? (
+            <div className="flex items-center justify-center py-8">
+              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+              <span className="ml-2 text-sm text-gray-500">정보를 불러오는 중...</span>
+            </div>
           ) : (
             <Table>
               <TableHeader>

@@ -166,8 +166,9 @@ export default function SchedulePage() {
           status: newReservationData.status,
           userName: newReservationData.userName,
           treatmentProductName: newReservationData.treatmentProductName,
-          memo: newReservationData.memo,
+          memo: newReservationData.userMemo, // ViewDocument의 userMemo 필드
           note: newReservationData.note,
+          doctorName: newReservationData.doctorName,
         };
 
         // 현재 월의 예약인지 확인
@@ -203,7 +204,13 @@ export default function SchedulePage() {
         setReservations((prev) =>
           prev.map((reservation) =>
             reservation.id === updatedReservationData.id.toString()
-              ? { ...reservation, status: updatedReservationData.status, note: updatedReservationData.note }
+              ? {
+                  ...reservation,
+                  status: updatedReservationData.status,
+                  note: updatedReservationData.note,
+                  memo: updatedReservationData.userMemo,
+                  doctorName: updatedReservationData.doctorName,
+                }
               : reservation,
           ),
         );
@@ -214,7 +221,13 @@ export default function SchedulePage() {
           Object.keys(newData).forEach((dateKey) => {
             newData[dateKey] = newData[dateKey].map((reservation) =>
               reservation.id === updatedReservationData.id.toString()
-                ? { ...reservation, status: updatedReservationData.status, note: updatedReservationData.note }
+                ? {
+                    ...reservation,
+                    status: updatedReservationData.status,
+                    note: updatedReservationData.note,
+                    memo: updatedReservationData.userMemo,
+                    doctorName: updatedReservationData.doctorName,
+                  }
                 : reservation,
             );
           });
@@ -311,6 +324,7 @@ export default function SchedulePage() {
         <div className="space-y-4 min-w-0">
           {/* 월간 예약 현황 달력 */}
           <MedicalRecordCalendar
+            isLoading={isLoading}
             hospitalId={hospitalId}
             callbackMonthChange={handleDateChange}
             monthlyReservationsData={monthlyReservationsData}
