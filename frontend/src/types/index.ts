@@ -27,10 +27,13 @@ export interface TreatmentProduct {
 
 export interface BusinessHour {
   id: string;
-  dayOfWeek: number;
-  startTime: string;
-  endTime: string;
   hospitalId: string;
+  dayOfWeek: string; // "MONDAY", "TUESDAY", etc.
+  openTime: string; // "09:00"
+  closeTime: string; // "18:00"
+  breakStartTime: string; // "12:00"
+  breakEndTime: string; // "13:00"
+  isClosed: boolean;
 }
 
 export type BusinessHours = BusinessHour[];

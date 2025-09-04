@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { getBusinessHoursByHospital, updateBusinessHour } from '@/api/businessHour';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Toaster, toast } from 'sonner';
+import { toast } from 'sonner';
 
 interface BusinessHour {
   id: string;
@@ -154,8 +154,6 @@ export default function BusinessHourManagement({ hospitalId }: Props) {
 
   return (
     <>
-      <Toaster expand={true} richColors position="top-center" />
-
       <Card>
         <CardHeader>
           <CardTitle>영업시간 관리</CardTitle>

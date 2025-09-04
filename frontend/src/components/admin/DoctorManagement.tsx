@@ -14,7 +14,7 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { getDoctorsByHospital, createDoctor, updateDoctor, deleteDoctor, recoverDoctor } from '@/api/doctor';
-import { Toaster, toast } from 'sonner';
+import { toast } from 'sonner';
 import type { Doctor } from '@/types';
 
 interface Props {
@@ -120,7 +120,6 @@ export default function DoctorManagement({ hospitalId }: Props) {
   };
   return (
     <>
-      <Toaster expand={true} richColors position="top-center" />
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">

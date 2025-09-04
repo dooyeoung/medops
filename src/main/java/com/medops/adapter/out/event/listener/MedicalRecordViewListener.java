@@ -3,12 +3,15 @@ package com.medops.adapter.out.event.listener;
 import com.medops.adapter.out.persistence.mongodb.document.MedicalRecordViewDocument;
 import com.medops.adapter.out.persistence.mongodb.repository.*;
 import com.medops.application.eventsourcing.event.*;
+import com.medops.application.service.NotificationEventService;
 import com.medops.common.exception.NotFoundResource;
 import com.medops.domain.enums.MedicalRecordStatus;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class MedicalRecordViewListener {
@@ -18,6 +21,7 @@ public class MedicalRecordViewListener {
     private final TreatmentProductDocumentRepository treatmentProductDocumentRepository;
     private final HospitalDocumentRepository hospitalDocumentRepository;
     private final DoctorDocumentRepository doctorDocumentRepository;
+    private final NotificationEventService notificationEventService;
 
     @EventListener
     public void on(ReservationCreated event) {
@@ -42,6 +46,15 @@ public class MedicalRecordViewListener {
             event.getUserMemo()
         );
         viewRepository.save(viewDocument);
+
+        // SSE 새 예약 알림 발송
+        try {
+            notificationEventService.publishNewReservationFromViewDoc(viewDocument);
+            log.info("새 예약 SSE 알림 발송 완료: recordId={}, hospitalId={}", 
+                    event.getRecordId(), event.getHospitalId());
+        } catch (Exception e) {
+            log.error("새 예약 SSE 알림 발송 실패: recordId={}", event.getRecordId(), e);
+        }
     }
 
     @EventListener
@@ -64,6 +77,14 @@ public class MedicalRecordViewListener {
                 viewDoc.getUserMemo()
             );
             viewRepository.save(updatedDoc);
+
+            // SSE 예약 확정 알림 발송
+            try {
+                notificationEventService.publishReservationUpdateFromViewDoc(updatedDoc);
+                log.info("예약 확정 SSE 알림 발송 완료: recordId={}", event.getRecordId());
+            } catch (Exception e) {
+                log.error("예약 확정 SSE 알림 발송 실패: recordId={}", event.getRecordId(), e);
+            }
         });
     }
 

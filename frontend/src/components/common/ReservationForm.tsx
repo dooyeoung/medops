@@ -30,7 +30,13 @@ export default function ReservationForm({ hospitalId, treatmentProducts, busines
     const dayName = dayOfWeekMap[new Date(selectedDate).getDay()];
     const operatingDay = businessHours.find((bh) => bh.dayOfWeek === dayName);
 
-    if (!operatingDay || operatingDay.closed) {
+    console.log('선택된 날짜:', selectedDate);
+    console.log('요일:', dayName);
+    console.log('운영시간 데이터:', businessHours);
+    console.log('해당 요일 운영시간:', operatingDay);
+
+    if (!operatingDay || operatingDay.isClosed) {
+      console.log('해당 요일 휴무');
       setAllTimePoints([]);
       return;
     }
@@ -38,18 +44,26 @@ export default function ReservationForm({ hospitalId, treatmentProducts, busines
     const generateAllTimePoints = () => {
       const points = [];
       const interval = 30; // 30분 간격
+
+      console.log('운영시간:', operatingDay.openTime, '-', operatingDay.closeTime);
+      console.log('휴게시간:', operatingDay.breakStartTime, '-', operatingDay.breakEndTime);
+
       const currentTime = new Date(`${selectedDate}T${operatingDay.openTime}`);
       const closeTime = new Date(`${selectedDate}T${operatingDay.closeTime}`);
-      const breakStartTime = new Date(`${selectedDate}T${operatingDay.breakStartTime}`);
-      const breakEndTime = new Date(`${selectedDate}T${operatingDay.breakEndTime}`);
+      const breakStartTime = operatingDay.breakStartTime
+        ? new Date(`${selectedDate}T${operatingDay.breakStartTime}`)
+        : null;
+      const breakEndTime = operatingDay.breakEndTime ? new Date(`${selectedDate}T${operatingDay.breakEndTime}`) : null;
 
-      while (currentTime <= closeTime) {
-        const isBreakTime = currentTime >= breakStartTime && currentTime < breakEndTime;
+      while (currentTime < closeTime) {
+        const isBreakTime =
+          breakStartTime && breakEndTime && currentTime >= breakStartTime && currentTime < breakEndTime;
         if (!isBreakTime) {
           points.push(currentTime.toTimeString().slice(0, 5));
         }
         currentTime.setMinutes(currentTime.getMinutes() + interval);
       }
+      console.log('생성된 시간 슬롯:', points);
       return points;
     };
 

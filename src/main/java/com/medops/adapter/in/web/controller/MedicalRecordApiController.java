@@ -8,6 +8,7 @@ import com.medops.application.eventsourcing.command.*;
 import com.medops.application.eventsourcing.processor.MedicalRecordCommandProcessor;
 import com.medops.application.port.in.usecase.MedicalRecordEventUseCase;
 import com.medops.application.port.in.usecase.MedicalRecordViewUseCase;
+import com.medops.application.service.NotificationEventService;
 import com.medops.common.response.Api;
 import com.medops.domain.model.Admin;
 import com.medops.domain.event.MedicalRecordEvent;
@@ -28,6 +29,7 @@ public class MedicalRecordApiController implements MedicalRecordApiControllerSpe
     private final MedicalRecordCommandProcessor commandProcessor;
     private final MedicalRecordViewUseCase medicalRecordViewUseCase;
     private final MedicalRecordEventUseCase medicalRecordEventUseCase;
+    private final NotificationEventService notificationEventService;
 
     @GetMapping("/{recordId}")
     public Api<MedicalRecordViewDocument> getMedicalRecord(

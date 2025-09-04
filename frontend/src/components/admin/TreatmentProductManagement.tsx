@@ -12,7 +12,7 @@ import {
   deleteTreatmentProduct,
   recoverTreatmentProduct,
 } from '@/api/treatmentProduct';
-import { Toaster, toast } from 'sonner';
+import { toast } from 'sonner';
 
 function TreatmentProductForm({
   treatmentProduct,
@@ -177,8 +177,6 @@ export default function TreatmentProductManagement({ hospitalId }: Props) {
 
   return (
     <>
-      <Toaster expand={true} richColors position="top-center" />
-
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">

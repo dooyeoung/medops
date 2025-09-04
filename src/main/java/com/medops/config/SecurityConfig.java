@@ -43,6 +43,12 @@ public class SecurityConfig {
         "/api/hospital"
     };
 
+    // SSE 엔드포인트는 인증이 필요하므로 제거
+    // private static final String[] ADMIN_GET_ALLOWLIST = {
+    //     "/api/admin/notifications/stream",
+    //     "/api/admin/notifications/status"
+    // };
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception{
         http.csrf((csrf)->csrf.disable());

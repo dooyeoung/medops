@@ -6,6 +6,7 @@ import DoctorManagement from '@/components/admin/DoctorManagement';
 import TreatmentProductManagement from '@/components/admin/TreatmentProductManagement';
 import BusinessHourManagement from '@/components/admin/BusinessHourManagement';
 import AdminManagement from '@/components/admin/AdminManagement';
+import { Toaster } from 'sonner';
 
 export default function HospitalSettingsPage() {
   const [hospitalId, setHospitalId] = useState<string | null>(null);
@@ -41,6 +42,9 @@ export default function HospitalSettingsPage() {
           <p className="text-muted-foreground">병원 영업 시간 및 상품을 관리하세요</p>
         </div>
       </div>
+
+      <Toaster expand={true} richColors position="top-center" />
+
       {/* 영업시간 관리 */}
       <BusinessHourManagement hospitalId={hospitalId} />
 

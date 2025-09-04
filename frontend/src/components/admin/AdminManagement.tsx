@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { getHospitalAdmins } from '@/api/hospital';
 import { inviteAdmin } from '@/api/admin';
-import { Toaster, toast } from 'sonner';
+import { toast } from 'sonner';
 
 interface Admin {
   id: string;
@@ -124,7 +124,6 @@ function AdminManagement({ hospitalId }: { hospitalId: string | null }) {
 
   return (
     <>
-      <Toaster />
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
           <div>

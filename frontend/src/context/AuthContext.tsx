@@ -44,11 +44,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   useEffect(() => {
     const fetchAuthData = async () => {
-      console.log('=== Auth Init Debug ===');
-      console.log('Token:', token);
-      console.log('Role:', role);
-      console.log('=======================');
-
       if (token && role) {
         setAuthToken(token); // Set token on initial load
         try {
@@ -66,7 +61,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
               const adminResponse = await getCurrentAdmin();
               if (adminResponse.result.resultCode === 200) {
                 setAdmin(adminResponse.body);
-                console.log('Admin data fetched successfully');
               } else {
                 console.error('Failed to fetch admin data on init', adminResponse.result.resultMessage);
                 logout(); // Clear invalid session

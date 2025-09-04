@@ -31,11 +31,20 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+        String accessToken = null;
+        
+        // 1. Authorization 헤더에서 토큰 추출
         String authorizationHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
-
         if (StringUtils.isNotBlank(authorizationHeader) && authorizationHeader.startsWith("Bearer ")) {
-            String accessToken = authorizationHeader.substring(7);
+            accessToken = authorizationHeader.substring(7);
+        }
+        
+        // 2. 헤더에 토큰이 없으면 쿼리 파라미터에서 추출 (SSE용)
+        if (StringUtils.isBlank(accessToken)) {
+            accessToken = request.getParameter("token");
+        }
 
+        if (StringUtils.isNotBlank(accessToken)) {
             try {
                 TokenType tokenType = tokenPort.parseTokenType(accessToken);
                 String id = tokenPort.parseUserIdFromToken(accessToken);
