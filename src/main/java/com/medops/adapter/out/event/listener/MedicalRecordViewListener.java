@@ -108,6 +108,14 @@ public class MedicalRecordViewListener {
                 viewDoc.getUserMemo()
             );
             viewRepository.save(updatedDoc);
+
+            // SSE 예약 대기 상태 변경 알림 발송
+            try {
+                notificationEventService.publishReservationUpdateFromViewDoc(updatedDoc);
+                log.info("예약 대기 상태 변경 SSE 알림 발송 완료: recordId={}", event.getRecordId());
+            } catch (Exception e) {
+                log.error("예약 대기 상태 변경 SSE 알림 발송 실패: recordId={}", event.getRecordId(), e);
+            }
         });
     }
 
@@ -131,6 +139,14 @@ public class MedicalRecordViewListener {
                 viewDoc.getUserMemo()
             );
             viewRepository.save(updatedDoc);
+
+            // SSE 예약 취소 알림 발송
+            try {
+                notificationEventService.publishReservationUpdateFromViewDoc(updatedDoc);
+                log.info("예약 취소 SSE 알림 발송 완료: recordId={}", event.getRecordId());
+            } catch (Exception e) {
+                log.error("예약 취소 SSE 알림 발송 실패: recordId={}", event.getRecordId(), e);
+            }
         });
     }
 
@@ -154,6 +170,14 @@ public class MedicalRecordViewListener {
                 viewDoc.getUserMemo()
             );
             viewRepository.save(updatedDoc);
+
+            // SSE 예약 완료 알림 발송
+            try {
+                notificationEventService.publishReservationUpdateFromViewDoc(updatedDoc);
+                log.info("예약 완료 SSE 알림 발송 완료: recordId={}", event.getRecordId());
+            } catch (Exception e) {
+                log.error("예약 완료 SSE 알림 발송 실패: recordId={}", event.getRecordId(), e);
+            }
         });
     }
 
@@ -181,6 +205,14 @@ public class MedicalRecordViewListener {
                 viewDoc.getUserMemo()
             );
             viewRepository.save(updatedDoc);
+
+            // SSE 담당의사 배정 알림 발송
+            try {
+                notificationEventService.publishDoctorAssignmentFromViewDoc(updatedDoc);
+                log.info("담당의사 배정 SSE 알림 발송 완료: recordId={}, doctorName={}", event.getRecordId(), doctorName);
+            } catch (Exception e) {
+                log.error("담당의사 배정 SSE 알림 발송 실패: recordId={}", event.getRecordId(), e);
+            }
         });
     }
 
@@ -204,6 +236,14 @@ public class MedicalRecordViewListener {
                 viewDoc.getUserMemo()
             );
             viewRepository.save(updatedDoc);
+
+            // SSE 노트 업데이트 알림 발송
+            try {
+                notificationEventService.publishReservationUpdateFromViewDoc(updatedDoc);
+                log.info("노트 업데이트 SSE 알림 발송 완료: recordId={}", event.getRecordId());
+            } catch (Exception e) {
+                log.error("노트 업데이트 SSE 알림 발송 실패: recordId={}", event.getRecordId(), e);
+            }
         });
     }
 }

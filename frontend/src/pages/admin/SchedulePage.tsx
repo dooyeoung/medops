@@ -127,7 +127,6 @@ export default function SchedulePage() {
           groupedReservations[dateKey].push(res);
         });
         setMonthlyReservationsData(groupedReservations);
-
       } catch (err) {
         console.error('Failed to fetch initial data:', err);
         setError('초기 데이터를 가져오는 데 실패했습니다.');
@@ -204,7 +203,7 @@ export default function SchedulePage() {
         setReservations((prev) =>
           prev.map((reservation) =>
             reservation.id === updatedReservationData.id.toString()
-              ? { ...reservation, status: updatedReservationData.status }
+              ? { ...reservation, status: updatedReservationData.status, note: updatedReservationData.note }
               : reservation,
           ),
         );
@@ -215,17 +214,68 @@ export default function SchedulePage() {
           Object.keys(newData).forEach((dateKey) => {
             newData[dateKey] = newData[dateKey].map((reservation) =>
               reservation.id === updatedReservationData.id.toString()
-                ? { ...reservation, status: updatedReservationData.status }
+                ? { ...reservation, status: updatedReservationData.status, note: updatedReservationData.note }
                 : reservation,
             );
           });
           return newData;
         });
 
-        toast.info(`예약 상태가 변경되었습니다: ${updatedReservationData.status}`);
+        const statusLabels = {
+          RESERVED: '접수',
+          PENDING: '대기',
+          CANCELED: '취소',
+          COMPLETED: '완료',
+        };
+        toast.info(
+          `예약 상태가 변경되었습니다: ${statusLabels[updatedReservationData.status] || updatedReservationData.status}`,
+        );
       } catch (error) {
         console.error('SSE 메시지 파싱 실패:', error);
       }
+    });
+
+    // 담당의사 배정 이벤트 처리
+    eventSource.addEventListener('DOCTOR_ASSIGN', (event) => {
+      try {
+        const doctorAssignData = JSON.parse(event.data);
+
+        // 담당의사 정보 업데이트
+        setReservations((prev) =>
+          prev.map((reservation) =>
+            reservation.id === doctorAssignData.id.toString()
+              ? { ...reservation, doctorName: doctorAssignData.doctorName }
+              : reservation,
+          ),
+        );
+
+        // monthlyReservationsData도 업데이트
+        setMonthlyReservationsData((prev) => {
+          const newData = { ...prev };
+          Object.keys(newData).forEach((dateKey) => {
+            newData[dateKey] = newData[dateKey].map((reservation) =>
+              reservation.id === doctorAssignData.id.toString()
+                ? { ...reservation, doctorName: doctorAssignData.doctorName }
+                : reservation,
+            );
+          });
+          return newData;
+        });
+
+        toast.success(`담당의사가 배정되었습니다: ${doctorAssignData.doctorName || '담당의사'}`);
+      } catch (error) {
+        console.error('SSE 담당의사 배정 메시지 파싱 실패:', error);
+      }
+    });
+
+    // Heartbeat 메시지 처리 (연결 상태 유지)
+    eventSource.addEventListener('HEARTBEAT', (event) => {
+      console.log('SSE heartbeat 수신:', event.data);
+    });
+
+    // 연결된 메시지 처리
+    eventSource.addEventListener('CONNECTED', (event) => {
+      console.log('SSE 연결 확인:', event.data);
     });
 
     eventSource.onerror = (error) => {

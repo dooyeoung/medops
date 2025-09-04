@@ -68,8 +68,8 @@ export default function AdminSetupAccountPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
-      <Card className="w-full max-w-md">
+    <div className="flex justify-center items-center w-lg mx-auto" style={{ height: '90vh' }}>
+      <Card className="w-full">
         <CardHeader>
           <CardTitle className="text-2xl text-center">계정 설정</CardTitle>
           <CardDescription className="text-center">관리자 계정을 설정하여 가입을 완료하세요</CardDescription>

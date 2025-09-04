@@ -218,7 +218,7 @@ export default function ReservationListTable({
         currentNote,
       );
       setIsNoteModalOpen(false);
-      onReservationUpdate(); // 부모 컴포넌트에 업데이트 알림
+      toast.success('메모가 저장되었습니다.');
     } catch (err) {
       console.error('Failed to save note:', err);
       toast.error('노트 내용 저장 실패.', {
@@ -256,7 +256,7 @@ export default function ReservationListTable({
         ...data,
       });
       setIsNextReservationModalOpen(false);
-      onReservationUpdate(); // 부모 컴포넌트에 업데이트 알림
+      toast.success('다음 예약이 생성되었습니다.');
     } catch (error) {
       console.error(error);
       toast.error('예약 생성 실패.', {
@@ -290,11 +290,10 @@ export default function ReservationListTable({
       });
 
       toast.success('담당 의사 배정 성공.', {
-        description: selectedReservationForDoctor.name + ' 의사 배정 성공하였습니다',
+        description: '의사 배정이 완료되었습니다',
       });
       setIsDoctorAssignModalOpen(false);
       setSelectedDoctorId('');
-      onReservationUpdate(); // 부모 컴포넌트에 업데이트 알림
       setSelectedReservationForDoctor(null);
     } catch (error) {
       console.error('Failed to assign doctor:', error);
@@ -308,7 +307,7 @@ export default function ReservationListTable({
   const onConfirm = async (recordId: string, userId: string) => {
     try {
       await confirmReservation(recordId, userId, hospitalId, adminId);
-      await onReservationUpdate();
+      //toast.success('예약이 확정되었습니다.');
     } catch (err) {
       console.error('Failed to confirm reservation:', err);
       toast.error('예약 확정을 실패했습니다.', {
@@ -320,10 +319,9 @@ export default function ReservationListTable({
   const onPending = async (recordId: string, userId: string) => {
     try {
       await pendingReservation(recordId, userId, hospitalId, adminId);
-      await onReservationUpdate();
+      //toast.success('예약이 대기 상태로 변경되었습니다.');
     } catch (err) {
-      console.error('Failed to confirm reservation:', err);
-
+      console.error('Failed to change reservation status:', err);
       toast.error('예약 상태 변경을 실패했습니다.', {
         description: '서버 오류입니다',
       });
@@ -333,8 +331,9 @@ export default function ReservationListTable({
   const onCancel = async (recordId: string, userId: string) => {
     try {
       await cancelReservation(recordId, userId, hospitalId, adminId);
-      await onReservationUpdate();
+      //toast.success('예약이 취소되었습니다.');
     } catch (err) {
+      console.error('Failed to cancel reservation:', err);
       toast.error('예약 취소를 실패했습니다.', {
         description: '서버 오류입니다',
       });
@@ -344,9 +343,11 @@ export default function ReservationListTable({
   const onComplete = async (recordId: string, userId: string) => {
     try {
       await completeReservation(recordId, userId, hospitalId, adminId);
-      await onReservationUpdate();
+      // SSE로 자동 업데이트되므로 refetch 제거
+      //toast.success('예약이 완료되었습니다.');
     } catch (err) {
-      toast.error('예약 확정을 실패했습니다.', {
+      console.error('Failed to complete reservation:', err);
+      toast.error('예약 완료 처리를 실패했습니다.', {
         description: '서버 오류입니다',
       });
     }
