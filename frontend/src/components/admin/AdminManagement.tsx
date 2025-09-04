@@ -97,23 +97,6 @@ function AdminManagement({ hospitalId }: { hospitalId: string | null }) {
     }
   };
 
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case 'ACTIVATED':
-        return (
-          <Badge variant="default" className="bg-green-500">
-            활성화
-          </Badge>
-        );
-      case 'PENDING':
-        return <Badge variant="secondary">대기중</Badge>;
-      case 'INACTIVE':
-        return <Badge variant="destructive">비활성화</Badge>;
-      default:
-        return <Badge variant="outline">{status}</Badge>;
-    }
-  };
-
   const getRoleBadge = (role: string) => {
     switch (role) {
       case 'SUPER_ADMIN':

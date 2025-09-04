@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { getReservations, getReservationById, getReservationEvents } from '@/api/reservation';
 import { getBusinessHoursByHospital } from '@/api/businessHour';
 import { getTreatmentProductsByHospital } from '@/api/treatmentProduct';
@@ -40,16 +39,6 @@ interface Reservation {
   treatmentProductName?: string;
   memo?: string;
   note?: string;
-}
-
-interface BusinessHour {
-  id: string;
-  dayOfWeek: 'MONDAY' | 'TUESDAY' | 'WEDNESDAY' | 'THURSDAY' | 'FRIDAY' | 'SATURDAY' | 'SUNDAY';
-  openTime: string; // "HH:mm:ss"
-  closeTime: string; // "HH:mm:ss"
-  breakStartTime: string;
-  breakEndTime: string;
-  closed: boolean;
 }
 
 interface Props {
@@ -392,7 +381,7 @@ export default function MedicalRecordTimeTable({ hospitalId, selectedDate }: Pro
             const durationMinutes = (endTime.getTime() - startTime.getTime()) / (1000 * 60);
             const durationSlots = durationMinutes > 0 ? Math.ceil(durationMinutes / 30) : 1;
             const height = durationSlots * boxHeight; //
-            var borderColor = slot.reservationStatus === 'PENDING' ? 'border-gray-300' : 'border-blue-300';
+            let borderColor = slot.reservationStatus === 'PENDING' ? 'border-gray-300' : 'border-blue-300';
             borderColor = slot.reservationStatus === 'COMPLETED' ? 'border-green-300' : borderColor;
 
             return (

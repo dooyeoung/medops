@@ -112,7 +112,6 @@ export default function TreatmentProductManagement({ hospitalId }: Props) {
       setTreatmentProducts(productsResponse.body || []);
     } catch (err: any) {
       console.error('Failed to fetch treatment products:', err);
-    } finally {
     }
   };
 

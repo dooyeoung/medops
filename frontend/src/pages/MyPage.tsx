@@ -1,20 +1,7 @@
-import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { useAuth } from '@/context/AuthContext';
 import { useState, useEffect } from 'react';
 import { getReservationsByUserId } from '@/api/reservation';
-
-import { Button } from '@/components/ui/button';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface UserEvent {
   id: string;
@@ -34,16 +21,12 @@ interface UserEvent {
   };
 }
 
-const RESERVATION_STATUSES = ['PENDING', 'RESERVED', 'CANCELED_BY_USER', 'CANCELED_BY_HOSPITAL'];
-
 export default function MyPage() {
   const { user, isLoading: authLoading } = useAuth();
   const [userEvents, setUserEvents] = useState<UserEvent[]>([]);
   const [eventsLoading, setEventsLoading] = useState(true);
   const [eventsError, setEventsError] = useState<string | null>(null);
-
   const [newStatus, setNewStatus] = useState<string>('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const fetchUserEvents = async () => {
     setEventsLoading(true);
@@ -65,35 +48,6 @@ export default function MyPage() {
       fetchUserEvents();
     }
   }, [user]);
-
-  const handleSubmitStatusChange = async (scheduleId: string, recordId: string, hospitalId: string) => {
-    console.log(scheduleId);
-    if (!newStatus) {
-      console.error('Error: Please select a new status.');
-      return;
-    }
-
-    setIsSubmitting(true);
-    try {
-      await apiClient.patch(`/schedules/${scheduleId}/status`, {
-        status: newStatus,
-        userId: user.id,
-        recordId: recordId,
-        hospitalId: hospitalId,
-      });
-
-      console.log(`Reservation status updated to ${newStatus}.`);
-      fetchUserEvents(); // Refetch events, which will close the dialog
-    } catch (error: any) {
-      console.error(
-        'Error updating status:',
-        error.response?.data?.result?.resultMessage || error.message || 'Failed to update status.',
-      );
-    } finally {
-      setIsSubmitting(false);
-      setNewStatus('');
-    }
-  };
 
   const formatTime = (isoString: string) =>
     new Date(isoString).toLocaleTimeString('ko-KR', {

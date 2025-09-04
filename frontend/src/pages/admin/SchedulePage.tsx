@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { getReservations } from '@/api/reservation';
 import { getCurrentAdmin } from '@/api/admin';
 import { format } from 'date-fns';
@@ -32,7 +31,6 @@ export default function SchedulePage() {
   const [hospitalId, setHospitalId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [allMonthlyReservations, setAllMonthlyReservations] = useState<Reservation[]>([]);
   const [monthlyReservationsData, setMonthlyReservationsData] = useState<Record<string, Reservation[]>>({});
   const [currentMonth, setCurrentMonth] = useState<Date>(new Date()); // 현재 보고 있는 달 추가
 
@@ -46,14 +44,6 @@ export default function SchedulePage() {
       // UTC 기준으로 월의 시작일과 종료일 계산 (시간대 변환 방지)
       const startOfMonth = new Date(Date.UTC(month.getFullYear(), month.getMonth(), 1, 0, 0, 0, 0));
       const endOfMonth = new Date(Date.UTC(month.getFullYear(), month.getMonth() + 1, 0, 23, 59, 59, 999));
-
-      console.log('=== Date Range Debug ===');
-      console.log('Month:', month);
-      console.log('Start of month:', startOfMonth);
-      console.log('End of month:', endOfMonth);
-      console.log('Start ISO:', startOfMonth.toISOString());
-      console.log('End ISO:', endOfMonth.toISOString());
-      console.log('========================');
 
       const response = await getReservations(hospitalId, startOfMonth.toISOString(), endOfMonth.toISOString());
       setReservations(response.body || []);

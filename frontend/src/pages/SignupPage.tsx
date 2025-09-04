@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { registerUser } from '@/api/auth';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -19,8 +19,7 @@ export default function SignupPage() {
     setError(null);
     setIsLoading(true);
     try {
-      const response = await registerUser({ name, email, password });
-      console.log('Registration successful:', response.data);
+      await registerUser({ name, email, password });
       alert('Registration successful! Please log in.');
       navigate('/login'); // Redirect to login page on success
     } catch (err) {

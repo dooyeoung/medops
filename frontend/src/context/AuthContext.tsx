@@ -1,6 +1,6 @@
-import React, { createContext, useState, useContext, useEffect, ReactNode } from 'react';
-import { loginUser, registerUser, getCurrentUser } from '@/api/auth';
-import { adminLogin, createHospitalAndAdmin, getCurrentAdmin } from '@/api/admin';
+import React, { createContext, useState, useContext, useEffect, type ReactNode } from 'react';
+import { loginUser, getCurrentUser } from '@/api/auth';
+import { adminLogin, getCurrentAdmin } from '@/api/admin';
 import { setAuthToken } from '@/api/client'; // Import setAuthToken
 
 // Define types for User and Admin based on your backend models

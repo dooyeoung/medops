@@ -1,12 +1,8 @@
 import { useState, useEffect } from 'react';
-import { CalendarIcon, ClipboardPlus } from 'lucide-react';
-import { format } from 'date-fns';
+import { ClipboardPlus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import {
   Dialog,
@@ -24,15 +20,7 @@ import { followUpReservation, updateMedicalRecordNote } from '@/api/reservation'
 import { getTreatmentProductsByHospital } from '@/api/treatmentProduct';
 import { getBusinessHoursByHospital } from '@/api/businessHour';
 import { getDoctorsByHospital, assignDoctorToReservation } from '@/api/doctor';
-import { Calendar } from '@/components/ui/calendar';
-import {
-  getReservations,
-  updateReservationStatus,
-  confirmReservation,
-  cancelReservation,
-  pendingReservation,
-  completeReservation,
-} from '@/api/reservation';
+import { confirmReservation, cancelReservation, pendingReservation, completeReservation } from '@/api/reservation';
 import MedicalRecordTimeTable from '@/components/admin/MedicalRecordTimeTable';
 import ReservationForm from '@/components/common/ReservationForm';
 import { Toaster, toast } from 'sonner';
@@ -106,10 +94,8 @@ export default function ReservationListTable({
 
   // 다음 예약을 위한 상태
   const [businessHours, setBusinessHours] = useState<BusinessHours | null>(null);
-  const [timeSlots, setTimeSlots] = useState<string[]>([]);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
   const [selectedTime, setSelectedTime] = useState('');
-  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
 
   // 담당의사 배정 관련 상태
   const [isDoctorAssignModalOpen, setIsDoctorAssignModalOpen] = useState(false);
@@ -174,41 +160,6 @@ export default function ReservationListTable({
   };
 
   const groupedReservations = groupReservationsByDate(reservations);
-
-  const generateTimeSlots = (hours: BusinessHours, date: Date, interval: number = 30) => {
-    if (!hours) return [];
-    const slots: string[] = [];
-    const dayStart = new Date(date);
-    const [openHour, openMinute] = hours.openTime.split(':').map(Number);
-    dayStart.setHours(openHour, openMinute, 0, 0);
-
-    const dayEnd = new Date(date);
-    const [closeHour, closeMinute] = hours.closeTime.split(':').map(Number);
-    dayEnd.setHours(closeHour, closeMinute, 0, 0);
-
-    const [lunchStartHour, lunchStartMinute] = hours.lunchStartTime.split(':').map(Number);
-    const lunchStart = new Date(date);
-    lunchStart.setHours(lunchStartHour, lunchStartMinute, 0, 0);
-
-    const [lunchEndHour, lunchEndMinute] = hours.lunchEndTime.split(':').map(Number);
-    const lunchEnd = new Date(date);
-    lunchEnd.setHours(lunchEndHour, lunchEndMinute, 0, 0);
-
-    let current = dayStart;
-    while (current < dayEnd) {
-      if (current < lunchStart || current >= lunchEnd) {
-        slots.push(
-          current.toLocaleTimeString('ko-KR', {
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: false,
-          }),
-        );
-      }
-      current = new Date(current.getTime() + interval * 60 * 1000);
-    }
-    return slots;
-  };
 
   const handleNoteClick = (reservation: Reservation) => {
     setSelectedReservationForNote(reservation);

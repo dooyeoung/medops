@@ -1,19 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getHospitalById } from '@/api/hospital';
 import { getCurrentAdmin } from '@/api/admin';
 
 import DoctorManagement from '@/components/admin/DoctorManagement';
 import TreatmentProductManagement from '@/components/admin/TreatmentProductManagement';
 import BusinessHourManagement from '@/components/admin/BusinessHourManagement';
 import AdminManagement from '@/components/admin/AdminManagement';
-
-interface Hospital {
-  id: string;
-  name: string;
-  address: string;
-  createdAt: string;
-}
 
 export default function HospitalSettingsPage() {
   const [hospitalId, setHospitalId] = useState<string | null>(null);
@@ -27,6 +19,7 @@ export default function HospitalSettingsPage() {
         const adminResponse = await getCurrentAdmin();
         setHospitalId(adminResponse.body.hospital.id);
       } catch (err: any) {
+        console.log(err);
         navigate('/admin/login');
       } finally {
         setIsLoading(false);

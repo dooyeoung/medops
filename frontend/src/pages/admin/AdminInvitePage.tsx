@@ -23,7 +23,6 @@ export default function AdminInvitePage() {
         toast.success('관리자 초대 성공', {
           description: email + ' 관리를 초대하였습니다',
         });
-      } else {
       }
     } catch (err) {
       alert('관리자 초대 실패, 초대 중 오류가 발생했습니다. 다시 로그인을 시도하세요');

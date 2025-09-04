@@ -1,16 +1,9 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Calendar } from '@/components/ui/calendar';
 import { ko } from 'date-fns/locale';
 import { format } from 'date-fns';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import MedicalRecordTimeTable from '@/components/admin/MedicalRecordTimeTable';
 
 interface Props {
@@ -32,7 +25,6 @@ export default function MedicalRecordCalendar({ hospitalId, callbackMonthChange,
 
     const containerWidth = containerRef.current.offsetWidth;
     const containerClientWidth = containerRef.current.clientWidth;
-    const windowWidth = window.innerWidth;
 
     // 실제 사용 가능한 너비 계산
     const actualWidth = containerClientWidth || containerWidth;
@@ -104,7 +96,7 @@ export default function MedicalRecordCalendar({ hospitalId, callbackMonthChange,
             weekday: `text-muted-foreground rounded-md flex-1 font-normal text-sm select-none text-left pl-1`,
           }}
           components={{
-            DayButton: ({ day, children, modifiers, ...props }) => {
+            DayButton: ({ day, modifiers, ...props }) => {
               const date = day.date; // Access the date from the 'day' object
               const dateKey = format(date, 'yyyy-MM-dd');
               const reservationsForDay = monthlyReservationsData[dateKey] || [];
@@ -147,9 +139,9 @@ export default function MedicalRecordCalendar({ hospitalId, callbackMonthChange,
                         {hasReservations ? (
                           <div className="cursor-pointer flex flex-col text-xs space-y-0.5 w-full h-full overflow-hidden">
                             {reservationsForDay.slice(0, 2).map((res) => {
-                              var bgColor = res.status === 'PENDING' ? 'bg-gray-200' : 'bg-blue-100';
-                              var borderColor = res.status === 'PENDING' ? 'border-gray-300' : 'border-blue-200';
-                              var textColor = res.status === 'PENDING' ? 'text-gray-800' : 'text-blue-800';
+                              let bgColor = res.status === 'PENDING' ? 'bg-gray-200' : 'bg-blue-100';
+                              let borderColor = res.status === 'PENDING' ? 'border-gray-300' : 'border-blue-200';
+                              let textColor = res.status === 'PENDING' ? 'text-gray-800' : 'text-blue-800';
 
                               bgColor = res.status === 'CANCELED' ? 'bg-red-200' : bgColor;
                               borderColor = res.status === 'CANCELED' ? 'border-red-300' : borderColor;

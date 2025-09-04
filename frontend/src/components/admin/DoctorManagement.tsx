@@ -15,9 +15,10 @@ import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { getDoctorsByHospital, createDoctor, updateDoctor, deleteDoctor, recoverDoctor } from '@/api/doctor';
 import { Toaster, toast } from 'sonner';
+import type { Doctor } from '@/types';
 
 interface Props {
-  hospitalId;
+  hospitalId: string;
 }
 export default function DoctorManagement({ hospitalId }: Props) {
   const [doctors, setDoctors] = useState<Doctor[]>([]);
@@ -67,6 +68,7 @@ export default function DoctorManagement({ hospitalId }: Props) {
           description: doctorName + ' 의사를 삭제했습니다',
         });
       } catch (err: any) {
+        console.log(err);
         toast.error('의사 삭제 실패', {
           description: '서버 오류입니다',
         });
@@ -81,6 +83,7 @@ export default function DoctorManagement({ hospitalId }: Props) {
         description: doctorName + ' 의사를 복구했습니다',
       });
     } catch (err: any) {
+      console.log(err);
       toast.error('의사 복구 실패', {
         description: '서버 오류입니다',
       });
@@ -108,7 +111,8 @@ export default function DoctorManagement({ hospitalId }: Props) {
         description: '의사 정보를 성공적으로 수정했습니다',
       });
       await fetchDoctors(); // 의사 목록 새로고침
-    } catch (error) {
+    } catch (err: any) {
+      console.log(err);
       toast.error('의사 정보 수정 실패', {
         description: '서버 오류입니다',
       });
@@ -116,6 +120,7 @@ export default function DoctorManagement({ hospitalId }: Props) {
   };
   return (
     <>
+      <Toaster expand={true} richColors position="top-center" />
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">

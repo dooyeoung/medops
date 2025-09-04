@@ -5,7 +5,7 @@ export const getBusinessHoursByHospital = async (hospitalId: string) => {
   return response.data;
 };
 
-export const updateBusinessHour = async (businessHourId: string, data) => {
+export const updateBusinessHour = async (businessHourId: string, data: any) => {
   const response = await apiClient.put(`/business-hours/${businessHourId}`, data);
   return response.data;
 };

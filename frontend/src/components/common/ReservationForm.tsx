@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Button } from '@/components/ui/button';
 
 interface Props {
   hospitalId: string;
@@ -39,7 +38,7 @@ export default function ReservationForm({ hospitalId, treatmentProducts, busines
     const generateAllTimePoints = () => {
       const points = [];
       const interval = 30; // 30분 간격
-      let currentTime = new Date(`${selectedDate}T${operatingDay.openTime}`);
+      const currentTime = new Date(`${selectedDate}T${operatingDay.openTime}`);
       const closeTime = new Date(`${selectedDate}T${operatingDay.closeTime}`);
       const breakStartTime = new Date(`${selectedDate}T${operatingDay.breakStartTime}`);
       const breakEndTime = new Date(`${selectedDate}T${operatingDay.breakEndTime}`);

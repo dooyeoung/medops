@@ -3,7 +3,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import {
   getDashboardStats,
   getDashboardTrends,
-  getRealTimeSummary,
   getHeatmapData,
   getDoctorStats,
   getDoctorTreatmentStats,
