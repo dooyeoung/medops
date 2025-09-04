@@ -8,5 +8,5 @@ server:
   port: 8080
 
 secret:
-  key: ${JWT_SECRET:userionowmiowe!@#niviwemci1238f9@SFSDFSiemiflsibisl!23gficfmbisoqofjioeF#isosdf-sfenioisemvie}
+  key: ${JWT_SECRET:userionowmiowe!3#niviwemci1238f9@SFSDFSiemiflsibisl!23gficfmbisoqofjioeF#isosdf-sfenioisemvie}
   expiration_hours: ${JWT_EXPIRATION_HOURS:1}
