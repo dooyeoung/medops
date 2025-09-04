@@ -50,7 +50,7 @@ export default function MedicalRecordTimeTable({ hospitalId, selectedDate }: Pro
   const boxHeight = 48;
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedReservation, setSelectedReservation] = useState<Reservation | null>(null);
+  const [selectedUserName, setSelectedUserName] = useState<string>('');
   const [eventLog, setEventLog] = useState<Event[]>([]);
   const [timeSlots, setTimeSlots] = useState<string[]>([]);
   const [scheduleData, setScheduleData] = useState<TimeSlot[]>([]);
@@ -59,6 +59,7 @@ export default function MedicalRecordTimeTable({ hospitalId, selectedDate }: Pro
   const [businessHours, setBusinessHours] = useState<BusinessHours[]>([]);
   const [currentTime, setCurrentTime] = useState(new Date());
   const [isLoading, setIsLoading] = useState(true);
+  const [isEventLoading, setIsEventLoading] = useState(true);
   const [loadingStates, setLoadingStates] = useState({
     businessHours: false,
     treatmentProducts: false,
@@ -327,6 +328,7 @@ export default function MedicalRecordTimeTable({ hospitalId, selectedDate }: Pro
         setLoadingStates((prev) => ({ ...prev, reservations: false }));
       }
     };
+
     fetchReservations();
   }, [hospitalId, selectedDate]);
 
@@ -421,16 +423,17 @@ export default function MedicalRecordTimeTable({ hospitalId, selectedDate }: Pro
                 }}
                 onClick={async () => {
                   if (slot.appointmentId) {
+                    setSelectedUserName(slot.userName);
+                    setIsModalOpen(true);
+                    setEventLog([]);
+                    setIsEventLoading(true);
                     try {
-                      const reservationResponse = await getReservationById(slot.appointmentId);
-                      setSelectedReservation(reservationResponse.body);
-
                       const eventsResponse = await getReservationEvents(slot.appointmentId);
                       setEventLog(eventsResponse.body.reverse());
-
-                      setIsModalOpen(true);
                     } catch (error) {
                       console.error('Error fetching reservation details:', error);
+                    } finally {
+                      setIsEventLoading(false);
                     }
                   }
                 }}
@@ -704,12 +707,7 @@ export default function MedicalRecordTimeTable({ hospitalId, selectedDate }: Pro
     return (
       <div className="flex flex-col items-center justify-center h-full min-h-[400px] space-y-4">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-        <div className="text-gray-500 text-sm">타임테이블을 불러오는 중...</div>
-        <div className="text-xs text-gray-400 space-y-1">
-          {loadingStates.businessHours && <div>• 영업시간 정보 로딩 중</div>}
-          {loadingStates.treatmentProducts && <div>• 진료 항목 로딩 중</div>}
-          {loadingStates.reservations && <div>• 예약 정보 로딩 중</div>}
-        </div>
+        <div className="text-gray-500 text-sm">정보를 불러오는 중...</div>
       </div>
     );
   }
@@ -778,17 +776,18 @@ export default function MedicalRecordTimeTable({ hospitalId, selectedDate }: Pro
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent className="w-md">
           <DialogHeader>
-            <DialogTitle>{selectedReservation?.userName}님 기록</DialogTitle>
+            <DialogTitle>{selectedUserName}님 기록</DialogTitle>
           </DialogHeader>
-          {selectedReservation && (
-            <div className="mt-4 overflow-y-auto" style={{ height: '80vh' }}>
-              {eventLog && eventLog.length > 0 ? (
-                <div className="space-y-4">{eventLog.map((event, index) => getEventContent(event, index))}</div>
-              ) : (
-                <p className="text-sm text-muted-foreground">업데이트 기록이 없습니다.</p>
-              )}
-            </div>
-          )}
+          <div className="mt-4 overflow-y-auto" style={{ maxHeight: '80vh' }}>
+            {isEventLoading ? (
+              <div className="flex items-center justify-center py-8">
+                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+                <span className="ml-2 text-sm text-gray-500">정보를 불러오는 중...</span>
+              </div>
+            ) : (
+              <div className="space-y-4">{eventLog.map((event, index) => getEventContent(event, index))}</div>
+            )}
+          </div>
         </DialogContent>
       </Dialog>
     </>
