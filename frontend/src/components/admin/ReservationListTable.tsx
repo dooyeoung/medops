@@ -289,13 +289,13 @@ export default function ReservationListTable({
         doctorId: selectedDoctorId,
       });
 
-      setIsDoctorAssignModalOpen(false);
-      setSelectedReservationForDoctor(null);
-      setSelectedDoctorId('');
-      onReservationUpdate(); // 부모 컴포넌트에 업데이트 알림
-      toast.error('담당 의사 배정 성공.', {
+      toast.success('담당 의사 배정 성공.', {
         description: selectedReservationForDoctor.name + ' 의사 배정 성공하였습니다',
       });
+      setIsDoctorAssignModalOpen(false);
+      setSelectedDoctorId('');
+      onReservationUpdate(); // 부모 컴포넌트에 업데이트 알림
+      setSelectedReservationForDoctor(null);
     } catch (error) {
       console.error('Failed to assign doctor:', error);
       alert('담당의사 배정에 실패했습니다.');
