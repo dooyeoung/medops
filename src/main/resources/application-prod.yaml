@@ -16,3 +16,6 @@ logging:
     org.springframework.data.mongodb.core.MongoTemplate: INFO
     com.crm.adapter.out.persistence.mongodb: INFO
     root: WARN
+
+cors:
+  allowed-origins: ${FRONTEND_URL}
