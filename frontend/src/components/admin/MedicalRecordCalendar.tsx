@@ -103,9 +103,10 @@ export default function MedicalRecordCalendar({
             initialFocus
             locale={ko}
             classNames={{
-              today: `border-gray-500 border-t-2`, // Add a border to today's date
+              today: `border-red-500 border-b-1 border-x-1 border-t-2 bg-red-50`,
               day: `border-t`,
               weekday: `text-muted-foreground rounded-md flex-1 font-normal text-sm select-none text-left pl-1`,
+              week: 'py-0',
             }}
             components={{
               DayButton: ({ day, modifiers, ...props }) => {

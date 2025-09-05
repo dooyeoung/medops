@@ -391,8 +391,9 @@ export default function ReservationListTable({
                       <TableRow key={`date-${group.date}`} className="bg-gray-50">
                         <TableCell colSpan={7} className="text-gray-700 py-3">
                           <Dialog>
-                            <DialogTrigger className="w-full h-full text-left cursor-pointer">
-                              {formatDate(group.reservations[0].startTime)}
+                            <DialogTrigger className="w-full h-full text-left cursor-pointer flex items-center">
+                              <div>{formatDate(group.reservations[0].startTime)}</div>
+                              <div className="pl-4 text-xs">스케쥴 보기</div>
                             </DialogTrigger>
                             <DialogContent className="min-w-4xl">
                               <DialogTitle></DialogTitle>

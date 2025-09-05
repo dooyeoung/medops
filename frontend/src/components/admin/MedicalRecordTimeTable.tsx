@@ -439,7 +439,6 @@ export default function MedicalRecordTimeTable({ hospitalId, selectedDate }: Pro
                 }}
               >
                 <div className="font-medium truncate text-foreground">{slot.userName}</div>
-                <div className="text-muted-foreground truncate">{slot.type}</div>
                 <div className="text-xs truncate">
                   {slot.startTime}~{slot.endTime}
                 </div>
