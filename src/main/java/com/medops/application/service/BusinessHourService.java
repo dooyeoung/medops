@@ -12,7 +12,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.DayOfWeek;
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
@@ -38,10 +37,10 @@ public class BusinessHourService implements BusinessHourUseCase {
                 .hospital(hospital)
                 .dayOfWeek(dayOfWeek)
                 .isClosed(isWeekend)
-                .openTime(isWeekend? null: LocalTime.of(9, 0))
-                .closeTime(isWeekend? null: LocalTime.of(18, 0))
-                .breakStartTime(isWeekend? null: LocalTime.of(12, 0))
-                .breakEndTime(isWeekend? null: LocalTime.of(13, 0))
+                .openTime(isWeekend? null: "09:00")
+                .closeTime(isWeekend? null: "18:00")
+                .breakStartTime(isWeekend? null: "12:00")
+                .breakEndTime(isWeekend? null: "13:00")
                 .build();
 
             saveBusinessHourPort.saveBusinessHour(businessHour);

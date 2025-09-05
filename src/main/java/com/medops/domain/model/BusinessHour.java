@@ -5,7 +5,6 @@ import lombok.Builder;
 import lombok.Getter;
 
 import java.time.DayOfWeek;
-import java.time.LocalTime;
 
 @Getter
 @Builder(toBuilder = true)
@@ -14,9 +13,9 @@ public class BusinessHour {
     private String id;
     private Hospital hospital;
     private DayOfWeek dayOfWeek;
-    private LocalTime openTime;
-    private LocalTime closeTime;
-    private LocalTime breakStartTime;
-    private LocalTime breakEndTime;
+    private String openTime;
+    private String closeTime;
+    private String breakStartTime;
+    private String breakEndTime;
     private boolean isClosed;
 }

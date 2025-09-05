@@ -6,7 +6,6 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.DayOfWeek;
-import java.time.LocalTime;
 
 @Getter
 @AllArgsConstructor
@@ -17,9 +16,9 @@ public class BusinessHourDocument {
     private String hospitalId;
 
     private DayOfWeek dayOfWeek;
-    private LocalTime openTime;
-    private LocalTime closeTime;
-    private LocalTime breakStartTime;
-    private LocalTime breakEndTime;
+    private String openTime;
+    private String closeTime;
+    private String breakStartTime;
+    private String breakEndTime;
     private boolean isClosed;
 }

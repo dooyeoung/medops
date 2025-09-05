@@ -55,10 +55,10 @@ class BusinessHourUseCaseTest {
             .hospital(testHospital)
             .dayOfWeek(DayOfWeek.MONDAY)
             .isClosed(false)
-            .openTime(LocalTime.of(9, 0))
-            .closeTime(LocalTime.of(18, 0))
-            .breakStartTime(LocalTime.of(12, 0))
-            .breakEndTime(LocalTime.of(13, 0))
+            .openTime("09:00")
+            .closeTime("18:00")
+            .breakStartTime("12:00")
+            .breakEndTime("13:00")
             .build();
     }
 
@@ -129,10 +129,10 @@ class BusinessHourUseCaseTest {
         // given
         UpdateBusinessHourCommand command = new UpdateBusinessHourCommand(
             "business-hour-1",
-            LocalTime.of(8, 30),
-            LocalTime.of(19, 0),
-            LocalTime.of(12, 30),
-            LocalTime.of(13, 30),
+            "08:30",
+            "19:00",
+            "12:30",
+            "13:30",
             false
         );
         
@@ -144,10 +144,10 @@ class BusinessHourUseCaseTest {
         // then
         verify(loadBusinessHourPort).loadBusinessHourById("business-hour-1");
         verify(saveBusinessHourPort).saveBusinessHour(argThat(businessHour -> 
-            businessHour.getOpenTime().equals(LocalTime.of(8, 30)) &&
-            businessHour.getCloseTime().equals(LocalTime.of(19, 0)) &&
-            businessHour.getBreakStartTime().equals(LocalTime.of(12, 30)) &&
-            businessHour.getBreakEndTime().equals(LocalTime.of(13, 30)) &&
+            businessHour.getOpenTime().equals("08:30") &&
+            businessHour.getCloseTime().equals("19:00") &&
+            businessHour.getBreakStartTime().equals("12:30") &&
+            businessHour.getBreakEndTime().equals("13:30") &&
             !businessHour.isClosed()
         ));
     }
@@ -158,10 +158,10 @@ class BusinessHourUseCaseTest {
         // given
         UpdateBusinessHourCommand command = new UpdateBusinessHourCommand(
             "nonexistent-business-hour",
-            LocalTime.of(8, 30),
-            LocalTime.of(19, 0),
-            LocalTime.of(12, 30),
-            LocalTime.of(13, 30),
+            "08:30",
+            "19:00",
+            "12:30",
+            "13:30",
             false
         );
         
@@ -219,10 +219,10 @@ class BusinessHourUseCaseTest {
             
         UpdateBusinessHourCommand command = new UpdateBusinessHourCommand(
             "business-hour-1",
-            LocalTime.of(10, 0),
-            LocalTime.of(17, 0),
-            LocalTime.of(12, 0),
-            LocalTime.of(13, 0),
+            "10:00",
+            "17:00",
+            "12:00",
+            "13:00",
             false
         );
         
@@ -235,10 +235,10 @@ class BusinessHourUseCaseTest {
         verify(loadBusinessHourPort).loadBusinessHourById("business-hour-1");
         verify(saveBusinessHourPort).saveBusinessHour(argThat(businessHour -> 
             !businessHour.isClosed() &&
-            businessHour.getOpenTime().equals(LocalTime.of(10, 0)) &&
-            businessHour.getCloseTime().equals(LocalTime.of(17, 0)) &&
-            businessHour.getBreakStartTime().equals(LocalTime.of(12, 0)) &&
-            businessHour.getBreakEndTime().equals(LocalTime.of(13, 0))
+            businessHour.getOpenTime().equals("10:00") &&
+            businessHour.getCloseTime().equals("17:00") &&
+            businessHour.getBreakStartTime().equals("12:00") &&
+            businessHour.getBreakEndTime().equals("13:00")
         ));
     }
 }
