@@ -34,4 +34,9 @@ public class MedicalRecordViewPersistenceAdapter implements LoadMedicalRecordVie
     public Optional<MedicalRecordViewDocument> loadMedicalRecordById(String recordId) {
         return medicalRecordViewDocumentRepository.findById(recordId);
     }
+
+    @Override
+    public List<MedicalRecordViewDocument> loadMedicalRecordsByTreatmentIdInRange(String treatmentProductId, Instant startTime, Instant endTime) {
+        return medicalRecordViewDocumentRepository.findAllByTreatmentProductIdInRange(treatmentProductId, startTime, endTime);
+    }
 }

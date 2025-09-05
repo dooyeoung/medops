@@ -15,4 +15,7 @@ public interface MedicalRecordViewDocumentRepository extends MongoRepository<Med
 
     List<MedicalRecordViewDocument> findAllByUserIdOrderByStartTimeDesc(String userId);
     List<MedicalRecordViewDocument> findAllByUserIdAndHospitalIdOrderByStartTimeDesc(String userId, String hospitalId);
+
+    @Query("{ 'treatmentProductId': ?0, 'endTIme': { '$gt': ?1 }, 'startTime': { '$lt': ?2 } }")
+    List<MedicalRecordViewDocument> findAllByTreatmentProductIdInRange(String treatmentProductId, Instant startTime, Instant endTime);
 }

@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
@@ -38,6 +39,11 @@ public class TreatmentProductPersistenceAdapter implements LoadTreatmentProductP
         TreatmentProductDocument treatmentProduct = treatmentProductDocumentRepository.findById(treatmentProductId).orElseThrow();
         treatmentProduct.setDeletedAt(null);
         treatmentProductDocumentRepository.save(treatmentProduct);
+    }
+
+    @Override
+    public Optional<TreatmentProduct> loadTreatmentProductById(String treatmentProductId) {
+        return treatmentProductDocumentRepository.findById(treatmentProductId).map(treatmentProductConverter::toDomain);
     }
 
     @Override

@@ -25,13 +25,9 @@ public class SseEmitterService {
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     
     public SseEmitterService() {
-        System.out.println("SseEmitterService 초기화됨");
-        // 30초마다 죽은 연결 정리 (디버깅을 위해 10초로 단축)
         scheduler.scheduleWithFixedDelay(() -> {
-            System.out.println("스케줄된 cleanupDeadConnections 실행");
             cleanupDeadConnections();
         }, 10, 10, TimeUnit.SECONDS);
-        System.out.println("SSE 연결 정리 스케줄러 시작됨 (10초 간격)");
     }
 
     /**
@@ -166,7 +162,7 @@ public class SseEmitterService {
      */
     private void cleanupDeadConnections() {
         try {
-            System.out.println("죽은 SSE 연결 정리 시작 - 현재 병원 수: "+ hospitalEmitters.size());
+            log.info("죽은 SSE 연결 정리 시작 - 현재 병원 수: {}", hospitalEmitters.size());
             int totalCleaned = 0;
             
             for (Map.Entry<String, List<SseEmitter>> entry : hospitalEmitters.entrySet()) {

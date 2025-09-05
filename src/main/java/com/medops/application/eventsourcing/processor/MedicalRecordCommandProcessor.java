@@ -2,6 +2,7 @@ package com.medops.application.eventsourcing.processor;
 
 import com.medops.application.eventsourcing.command.executor.*;
 import com.medops.application.eventsourcing.handler.*;
+import com.medops.application.port.in.usecase.ReservationValidationUseCase;
 import com.medops.application.port.out.LoadAdminPort;
 import com.medops.application.port.out.LoadDoctorPort;
 import com.medops.application.port.out.LoadMedicalRecordSnapshotPort;
@@ -36,14 +37,17 @@ public class MedicalRecordCommandProcessor {
     private final ApplicationEventPublisher eventPublisher;
     private final LoadAdminPort loadAdminPort;
     private final LoadDoctorPort loadDoctorPort;
+    private final ReservationValidationUseCase reservationValidationUseCase;
 
     public MedicalRecordCommandProcessor(
         MedicalRecordEventStorePort medicalRecordEventStorePort,
         LoadMedicalRecordSnapshotPort loadMedicalRecordSnapshotPort,
         ApplicationEventPublisher eventPublisher,
         LoadAdminPort loadAdminPort,
-        LoadDoctorPort loadDoctorPort
+        LoadDoctorPort loadDoctorPort,
+        ReservationValidationUseCase reservationValidationUseCase
     ) {
+        this.reservationValidationUseCase = reservationValidationUseCase;
         this.medicalRecordEventStorePort = medicalRecordEventStorePort;
         this.loadMedicalRecordSnapshotPort = loadMedicalRecordSnapshotPort;
         this.eventPublisher = eventPublisher; // 추가
@@ -66,7 +70,7 @@ public class MedicalRecordCommandProcessor {
 
         this.commandExecutors = toDictionary(
             List.of(
-                new ReservationCreatedCommandExecutor(),
+                new ReservationCreatedCommandExecutor(reservationValidationUseCase),
                 new NoteUpdateCommandExecutor(),
                 new DoctorAssignCommandExecutor(loadAdminPort, loadDoctorPort),
                 new ConfirmCommandExecutor(loadAdminPort),

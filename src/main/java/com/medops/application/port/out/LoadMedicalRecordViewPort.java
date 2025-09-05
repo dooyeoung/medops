@@ -11,4 +11,5 @@ public interface LoadMedicalRecordViewPort {
     List<MedicalRecordViewDocument> loadMedicalRecordsByUserId(String userId);
     List<MedicalRecordViewDocument> loadMedicalRecordsByUserIdAndByHospitalId(String userId, String hospitalId);
     Optional<MedicalRecordViewDocument> loadMedicalRecordById(String recordId);
+    List<MedicalRecordViewDocument> loadMedicalRecordsByTreatmentIdInRange(String treatmentProductId, Instant startTime, Instant endTime);
 }
