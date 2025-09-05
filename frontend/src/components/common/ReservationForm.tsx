@@ -2,6 +2,13 @@ import { useState, useEffect } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Button } from '@/components/ui/button';
+import { format } from 'date-fns';
+import { ko } from 'date-fns/locale';
+import { CalendarIcon } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface Props {
   hospitalId: string;
@@ -12,14 +19,28 @@ interface Props {
 }
 export default function ReservationForm({ hospitalId, treatmentProducts, businessHours, forAdmin, onSubmit }: Props) {
   const [selectedProduct, setSelectedProduct] = useState<string>('');
-  const [selectedDate, setSelectedDate] = useState<string>(new Date().toISOString().split('T')[0]);
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
   const [allTimePoints, setAllTimePoints] = useState<string[]>([]);
   const [selectedStartTime, setSelectedStartTime] = useState<string>('');
   const [selectedEndTime, setSelectedEndTime] = useState<string>('');
   const [userMemo, setUserMemo] = useState<string>('');
   const [note, setNote] = useState<string>('');
+  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
 
   const dayOfWeekMap = ['SUNDAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY'];
+
+  // 특정 날짜가 휴무일인지 확인
+  const isDateDisabled = (date: Date) => {
+    const dayName = dayOfWeekMap[date.getDay()];
+    const operatingDay = businessHours.find((bh) => bh.dayOfWeek === dayName);
+    return operatingDay?.closed || false;
+  };
+
+  // 날짜 선택 핸들러 (선택 후 캘린더 닫기)
+  const handleDateSelect = (date: Date | undefined) => {
+    setSelectedDate(date);
+    setIsCalendarOpen(false);
+  };
 
   useEffect(() => {
     if (!selectedDate || businessHours.length === 0) {
@@ -27,15 +48,10 @@ export default function ReservationForm({ hospitalId, treatmentProducts, busines
       return;
     }
 
-    const dayName = dayOfWeekMap[new Date(selectedDate).getDay()];
+    const dayName = dayOfWeekMap[selectedDate.getDay()];
     const operatingDay = businessHours.find((bh) => bh.dayOfWeek === dayName);
 
-    console.log('선택된 날짜:', selectedDate);
-    console.log('요일:', dayName);
-    console.log('운영시간 데이터:', businessHours);
-    console.log('해당 요일 운영시간:', operatingDay);
-
-    if (!operatingDay || operatingDay.isClosed) {
+    if (!operatingDay || operatingDay.closed) {
       console.log('해당 요일 휴무');
       setAllTimePoints([]);
       return;
@@ -48,14 +64,15 @@ export default function ReservationForm({ hospitalId, treatmentProducts, busines
       console.log('운영시간:', operatingDay.openTime, '-', operatingDay.closeTime);
       console.log('휴게시간:', operatingDay.breakStartTime, '-', operatingDay.breakEndTime);
 
-      const currentTime = new Date(`${selectedDate}T${operatingDay.openTime}`);
-      const closeTime = new Date(`${selectedDate}T${operatingDay.closeTime}`);
+      const dateString = selectedDate.toISOString().split('T')[0];
+      const currentTime = new Date(`${dateString}T${operatingDay.openTime}`);
+      const closeTime = new Date(`${dateString}T${operatingDay.closeTime}`);
       const breakStartTime = operatingDay.breakStartTime
-        ? new Date(`${selectedDate}T${operatingDay.breakStartTime}`)
+        ? new Date(`${dateString}T${operatingDay.breakStartTime}`)
         : null;
-      const breakEndTime = operatingDay.breakEndTime ? new Date(`${selectedDate}T${operatingDay.breakEndTime}`) : null;
+      const breakEndTime = operatingDay.breakEndTime ? new Date(`${dateString}T${operatingDay.breakEndTime}`) : null;
 
-      while (currentTime < closeTime) {
+      while (currentTime <= closeTime) {
         const isBreakTime =
           breakStartTime && breakEndTime && currentTime >= breakStartTime && currentTime < breakEndTime;
         if (!isBreakTime) {
@@ -86,20 +103,22 @@ export default function ReservationForm({ hospitalId, treatmentProducts, busines
       return;
     }
 
+    const dateString = selectedDate.toISOString().split('T')[0];
+
     if (forAdmin) {
       onSubmit({
         hospitalId,
         treatmentProductId: selectedProduct,
-        startTime: new Date(`${selectedDate}T${selectedStartTime}`).toISOString(),
-        endTime: new Date(`${selectedDate}T${selectedEndTime}`).toISOString(),
+        startTime: new Date(`${dateString}T${selectedStartTime}`).toISOString(),
+        endTime: new Date(`${dateString}T${selectedEndTime}`).toISOString(),
         note,
       });
     } else {
       onSubmit({
         hospitalId,
         treatmentProductId: selectedProduct,
-        startTime: new Date(`${selectedDate}T${selectedStartTime}`).toISOString(),
-        endTime: new Date(`${selectedDate}T${selectedEndTime}`).toISOString(),
+        startTime: new Date(`${dateString}T${selectedStartTime}`).toISOString(),
+        endTime: new Date(`${dateString}T${selectedEndTime}`).toISOString(),
         userMemo,
       });
     }
@@ -124,12 +143,31 @@ export default function ReservationForm({ hospitalId, treatmentProducts, busines
       </div>
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">날짜 선택</label>
-        <Input
-          type="date"
-          value={selectedDate}
-          onChange={(e) => setSelectedDate(e.target.value)}
-          min={new Date().toISOString().split('T')[0]}
-        />
+        <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
+          <PopoverTrigger asChild>
+            <Button
+              variant={'outline'}
+              className={cn('w-full justify-start text-left font-normal', !selectedDate && 'text-muted-foreground')}
+            >
+              <CalendarIcon className="mr-2 h-4 w-4" />
+              {selectedDate ? (
+                format(selectedDate, 'yyyy년 M월 d일 (EEE)', { locale: ko })
+              ) : (
+                <span>날짜를 선택하세요</span>
+              )}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto p-0">
+            <Calendar
+              mode="single"
+              selected={selectedDate}
+              onSelect={handleDateSelect}
+              disabled={(date) => date < new Date() || isDateDisabled(date)}
+              locale={ko}
+              initialFocus
+            />
+          </PopoverContent>
+        </Popover>
       </div>
       <div className="grid grid-cols-2 gap-4">
         <div>
