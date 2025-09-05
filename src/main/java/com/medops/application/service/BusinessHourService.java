@@ -57,7 +57,12 @@ public class BusinessHourService implements BusinessHourUseCase {
     public void updateBusinessHour(UpdateBusinessHourCommand command) {
         BusinessHour businessHour = loadBusinessHourPort.loadBusinessHourById(command.businessHourId()).orElseThrow(
             () -> new NotFoundResource("영업시간 정보를 찾을수 없습니다.")
-        );;
+        );
+
+        BusinessHour.validateTimes(
+            command.openTime(), command.closeTime(), command.breakStartTime(), command.breakEndTime(), command.closed()
+        );
+
         saveBusinessHourPort.saveBusinessHour(
         businessHour.toBuilder()
             .openTime(command.openTime())
