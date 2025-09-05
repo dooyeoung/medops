@@ -93,6 +93,8 @@ export default function ReservationListTable({
   const [selectedStatus, setSelectedStatus] = useState<string>('');
   const [isStatusChanging, setIsStatusChanging] = useState(false);
   const [openPopoverId, setOpenPopoverId] = useState<string | null>(null);
+  const [isNextReservationModalLoading, setIsNextReservationModalLoading] = useState(true);
+  const [isSubmittingNextReservation, setIsSubmittingNextReservation] = useState(false);
 
   // 다음 예약을 위한 상태
   const [businessHours, setBusinessHours] = useState<BusinessHours | null>(null);
@@ -176,6 +178,9 @@ export default function ReservationListTable({
     setSelectedDate(tomorrow);
 
     if (hospitalId) {
+      setIsNextReservationModalOpen(true);
+      setIsNextReservationModalLoading(true);
+
       try {
         const [productsResponse, hoursResponse] = await Promise.all([
           getTreatmentProductsByHospital(hospitalId),
@@ -195,11 +200,10 @@ export default function ReservationListTable({
         console.log(fetchedHours);
       } catch (error) {
         console.error('Failed to fetch data for next reservation:', error);
+      } finally {
+        setIsNextReservationModalLoading(false);
       }
     }
-
-    setIsNextReservationModalOpen(true);
-
     setNewReservationData({
       userId: reservation.userId,
       treatmentProductId: reservation.treatmentProductId,
@@ -241,7 +245,7 @@ export default function ReservationListTable({
       } else if (newStatus === 'COMPLETED') {
         await completeReservation(reservationId, userId, hospitalId, adminId);
       }
-      
+
       // 성공 시 팝오버 닫기 및 상태 초기화
       setOpenPopoverId(null);
       setSelectedStatus('');
@@ -288,18 +292,20 @@ export default function ReservationListTable({
   }, [selectedDate, selectedTime, newReservationData.treatmentProductId, treatmentProducts]);
 
   const handleReservationSubmit = async (data: any) => {
+    setIsSubmittingNextReservation(true);
     try {
       await followUpReservation({
         userId: newReservationData.userId,
         ...data,
       });
       setIsNextReservationModalOpen(false);
-      toast.success('다음 예약이 생성되었습니다.');
     } catch (error) {
       console.error(error);
       toast.error('예약 생성 실패.', {
         description: '다음 예약 생성에 실패했습니다.',
       });
+    } finally {
+      setIsSubmittingNextReservation(false);
     }
   };
 
@@ -514,23 +520,32 @@ export default function ReservationListTable({
                 : '새로운 예약을 설정합니다.'}
             </DialogDescription>
           </DialogHeader>
-          <ReservationForm
-            hospitalId={hospitalId}
-            treatmentProducts={treatmentProducts}
-            businessHours={businessHours}
-            forAdmin={true}
-            onSubmit={handleReservationSubmit}
-          />
-          <DialogFooter>
-            <DialogClose asChild>
-              <Button type="button" variant="secondary">
-                취소
-              </Button>
-            </DialogClose>
-            <Button type="submit" form="reservation-form">
-              예약 신청
-            </Button>
-          </DialogFooter>
+          {isNextReservationModalLoading ? (
+            <div className="flex items-center justify-center py-8">
+              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+              <span className="ml-2 text-sm text-gray-500">정보를 불러오는 중...</span>
+            </div>
+          ) : (
+            <>
+              <ReservationForm
+                hospitalId={hospitalId}
+                treatmentProducts={treatmentProducts}
+                businessHours={businessHours}
+                forAdmin={true}
+                onSubmit={handleReservationSubmit}
+              />
+              <DialogFooter>
+                <DialogClose asChild>
+                  <Button type="button" variant="secondary" disabled={isSubmittingNextReservation}>
+                    취소
+                  </Button>
+                </DialogClose>
+                <Button type="submit" form="reservation-form" disabled={isSubmittingNextReservation}>
+                  {isSubmittingNextReservation ? '예약 신청중...' : '예약 신청'}
+                </Button>
+              </DialogFooter>
+            </>
+          )}
         </DialogContent>
       </Dialog>
 
