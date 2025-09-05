@@ -91,6 +91,8 @@ export default function ReservationListTable({
   const [selectedReservationForNote, setSelectedReservationForNote] = useState<Reservation | null>(null);
   const [currentNote, setCurrentNote] = useState('');
   const [selectedStatus, setSelectedStatus] = useState<string>('');
+  const [isStatusChanging, setIsStatusChanging] = useState(false);
+  const [openPopoverId, setOpenPopoverId] = useState<string | null>(null);
 
   // 다음 예약을 위한 상태
   const [businessHours, setBusinessHours] = useState<BusinessHours | null>(null);
@@ -226,6 +228,43 @@ export default function ReservationListTable({
     }
   };
 
+  // 상태 변경 핸들러 함수들
+  const handleStatusChange = async (reservationId: string, userId: string, newStatus: string) => {
+    setIsStatusChanging(true);
+    try {
+      if (newStatus === 'RESERVED') {
+        await confirmReservation(reservationId, userId, hospitalId, adminId);
+      } else if (newStatus === 'PENDING') {
+        await pendingReservation(reservationId, userId, hospitalId, adminId);
+      } else if (newStatus === 'CANCELED') {
+        await cancelReservation(reservationId, userId, hospitalId, adminId);
+      } else if (newStatus === 'COMPLETED') {
+        await completeReservation(reservationId, userId, hospitalId, adminId);
+      }
+      
+      // 성공 시 팝오버 닫기 및 상태 초기화
+      setOpenPopoverId(null);
+      setSelectedStatus('');
+    } catch (error) {
+      console.error('Failed to change reservation status:', error);
+      toast.error('예약 상태 변경 실패', {
+        description: '서버 오류입니다',
+      });
+    } finally {
+      setIsStatusChanging(false);
+    }
+  };
+
+  const getStatusText = (status: string) => {
+    const statusMap = {
+      PENDING: '대기',
+      RESERVED: '접수',
+      CANCELED: '취소',
+      COMPLETED: '완료',
+    };
+    return statusMap[status] || status;
+  };
+
   useEffect(() => {
     if (!selectedDate || !selectedTime || !newReservationData.treatmentProductId) {
       setNewReservationData((prev) => ({ ...prev, startTime: '', endTime: '' }));
@@ -298,55 +337,6 @@ export default function ReservationListTable({
       console.error('Failed to assign doctor:', error);
       alert('담당의사 배정에 실패했습니다.');
       toast.error('담당 의사 배정 실패.', {
-        description: '서버 오류입니다',
-      });
-    }
-  };
-
-  const onConfirm = async (recordId: string, userId: string) => {
-    try {
-      await confirmReservation(recordId, userId, hospitalId, adminId);
-      //toast.success('예약이 확정되었습니다.');
-    } catch (err) {
-      console.error('Failed to confirm reservation:', err);
-      toast.error('예약 확정을 실패했습니다.', {
-        description: '서버 오류입니다',
-      });
-    }
-  };
-
-  const onPending = async (recordId: string, userId: string) => {
-    try {
-      await pendingReservation(recordId, userId, hospitalId, adminId);
-      //toast.success('예약이 대기 상태로 변경되었습니다.');
-    } catch (err) {
-      console.error('Failed to change reservation status:', err);
-      toast.error('예약 상태 변경을 실패했습니다.', {
-        description: '서버 오류입니다',
-      });
-    }
-  };
-
-  const onCancel = async (recordId: string, userId: string) => {
-    try {
-      await cancelReservation(recordId, userId, hospitalId, adminId);
-      //toast.success('예약이 취소되었습니다.');
-    } catch (err) {
-      console.error('Failed to cancel reservation:', err);
-      toast.error('예약 취소를 실패했습니다.', {
-        description: '서버 오류입니다',
-      });
-    }
-  };
-
-  const onComplete = async (recordId: string, userId: string) => {
-    try {
-      await completeReservation(recordId, userId, hospitalId, adminId);
-      // SSE로 자동 업데이트되므로 refetch 제거
-      //toast.success('예약이 완료되었습니다.');
-    } catch (err) {
-      console.error('Failed to complete reservation:', err);
-      toast.error('예약 완료 처리를 실패했습니다.', {
         description: '서버 오류입니다',
       });
     }
@@ -428,7 +418,18 @@ export default function ReservationListTable({
                             </span>
                           </TableCell>
                           <TableCell className="flex">
-                            <Popover>
+                            <Popover
+                              open={openPopoverId === reservation.id}
+                              onOpenChange={(open) => {
+                                if (open) {
+                                  setOpenPopoverId(reservation.id);
+                                  setSelectedStatus('');
+                                } else {
+                                  setOpenPopoverId(null);
+                                  setSelectedStatus('');
+                                }
+                              }}
+                            >
                               <PopoverTrigger>{getStatusBadge(reservation.status)}</PopoverTrigger>
                               <PopoverContent>
                                 <div className="flex justify-between">
@@ -470,19 +471,13 @@ export default function ReservationListTable({
                                   </Select>
                                   <Button
                                     onClick={() => {
-                                      if (selectedStatus === 'RESERVED') {
-                                        onConfirm(reservation.id, reservation.userId);
-                                      } else if (selectedStatus == 'PENDING') {
-                                        onPending(reservation.id, reservation.userId);
-                                      } else if (selectedStatus == 'CANCELED') {
-                                        onCancel(reservation.id, reservation.userId);
-                                      } else if (selectedStatus == 'COMPLETED') {
-                                        onComplete(reservation.id, reservation.userId);
+                                      if (selectedStatus) {
+                                        handleStatusChange(reservation.id, reservation.userId, selectedStatus);
                                       }
-                                      setSelectedStatus('');
                                     }}
+                                    disabled={!selectedStatus || isStatusChanging}
                                   >
-                                    변경
+                                    {isStatusChanging ? '변경중...' : '변경'}
                                   </Button>
                                 </div>
                               </PopoverContent>
