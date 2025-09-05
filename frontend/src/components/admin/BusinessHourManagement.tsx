@@ -26,6 +26,7 @@ export default function BusinessHourManagement({ hospitalId }: Props) {
   const [isLoading, setIsLoading] = useState(true);
   const [isBusinessHourModalOpen, setIsBusinessHourModalOpen] = useState(false);
   const [editingBusinessHour, setEditingBusinessHour] = useState<BusinessHour | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     const fetchBusinessHours = async () => {
@@ -55,6 +56,7 @@ export default function BusinessHourManagement({ hospitalId }: Props) {
   const handleSaveBusinessHour = async () => {
     if (!editingBusinessHour) return;
 
+    setIsSaving(true);
     try {
       await updateBusinessHour(editingBusinessHour.id, {
         dayOfWeek: editingBusinessHour.dayOfWeek,
@@ -65,21 +67,23 @@ export default function BusinessHourManagement({ hospitalId }: Props) {
         closed: editingBusinessHour.closed,
       });
 
+      setIsBusinessHourModalOpen(false);
+      setEditingBusinessHour(null);
+
       toast.success('영업시간 정보 변경 성공', {
         description: '영업시간 정보를 변경하였습니다',
       });
       // 성공 시 영업시간 목록 새로고침
       const businessHoursResponse = await getBusinessHoursByHospital(hospitalId);
       setBusinessHours(businessHoursResponse.body || []);
-
-      setIsBusinessHourModalOpen(false);
-      setEditingBusinessHour(null);
     } catch (error) {
       console.error('Failed to update business hour:', error);
 
       toast.error('영업 시간 정보 변경 실패', {
         description: '서버 오류입니다',
       });
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -374,9 +378,13 @@ export default function BusinessHourManagement({ hospitalId }: Props) {
 
           <DialogFooter>
             <DialogClose asChild>
-              <Button variant="outline">취소</Button>
+              <Button variant="outline" disabled={isSaving}>
+                취소
+              </Button>
             </DialogClose>
-            <Button onClick={handleSaveBusinessHour}>저장</Button>
+            <Button onClick={handleSaveBusinessHour} disabled={isSaving}>
+              {isSaving ? '변경중...' : '저장'}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
