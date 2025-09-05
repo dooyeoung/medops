@@ -59,6 +59,13 @@ export default function HospitalDetailPage() {
   const [userReservations, setUserReservations] = useState<any[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formData, setFormData] = useState({
+    selectedProduct: '',
+    selectedDate: new Date(),
+    selectedStartTime: '',
+    selectedEndTime: '',
+    userMemo: ''
+  });
 
   useEffect(() => {
     const fetchHospitalData = async () => {
@@ -111,6 +118,16 @@ export default function HospitalDetailPage() {
     setIsSubmitting(true);
     try {
       await createReservation(data);
+      
+      // 성공 시에만 폼 데이터 리셋
+      setFormData({
+        selectedProduct: '',
+        selectedDate: new Date(),
+        selectedStartTime: '',
+        selectedEndTime: '',
+        userMemo: ''
+      });
+      
       setIsDialogOpen(false);
       fetchUserReservation();
       toast.success('예약 접수', {
@@ -323,6 +340,8 @@ export default function HospitalDetailPage() {
                         businessHours={businessHours}
                         forAdmin={false}
                         onSubmit={handleReservationSubmit}
+                        initialValues={formData}
+                        onFormChange={setFormData}
                       />
                       <DialogFooter>
                         <DialogClose asChild>

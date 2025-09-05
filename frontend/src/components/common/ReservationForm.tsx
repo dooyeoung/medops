@@ -16,15 +16,24 @@ interface Props {
   businessHours: BusinessHour[];
   forAdmin: boolean;
   onSubmit: (data: any) => void;
+  initialValues?: {
+    selectedProduct?: string;
+    selectedDate?: Date;
+    selectedStartTime?: string;
+    selectedEndTime?: string;
+    userMemo?: string;
+    note?: string;
+  };
+  onFormChange?: (formData: any) => void;
 }
-export default function ReservationForm({ hospitalId, treatmentProducts, businessHours, forAdmin, onSubmit }: Props) {
-  const [selectedProduct, setSelectedProduct] = useState<string>('');
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
+export default function ReservationForm({ hospitalId, treatmentProducts, businessHours, forAdmin, onSubmit, initialValues, onFormChange }: Props) {
+  const [selectedProduct, setSelectedProduct] = useState<string>(initialValues?.selectedProduct || '');
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(initialValues?.selectedDate || new Date());
   const [allTimePoints, setAllTimePoints] = useState<string[]>([]);
-  const [selectedStartTime, setSelectedStartTime] = useState<string>('');
-  const [selectedEndTime, setSelectedEndTime] = useState<string>('');
-  const [userMemo, setUserMemo] = useState<string>('');
-  const [note, setNote] = useState<string>('');
+  const [selectedStartTime, setSelectedStartTime] = useState<string>(initialValues?.selectedStartTime || '');
+  const [selectedEndTime, setSelectedEndTime] = useState<string>(initialValues?.selectedEndTime || '');
+  const [userMemo, setUserMemo] = useState<string>(initialValues?.userMemo || '');
+  const [note, setNote] = useState<string>(initialValues?.note || '');
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
 
   const dayOfWeekMap = ['SUNDAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY'];
@@ -92,6 +101,20 @@ export default function ReservationForm({ hospitalId, treatmentProducts, busines
   useEffect(() => {
     setSelectedEndTime('');
   }, [selectedStartTime]);
+
+  // 폼 데이터 변경 시 부모 컴포넌트에 알림
+  useEffect(() => {
+    if (onFormChange) {
+      onFormChange({
+        selectedProduct,
+        selectedDate,
+        selectedStartTime,
+        selectedEndTime,
+        userMemo,
+        note
+      });
+    }
+  }, [selectedProduct, selectedDate, selectedStartTime, selectedEndTime, userMemo, note, onFormChange]);
 
   const availableStartTimes = allTimePoints.slice(0, -1);
   const availableEndTimes = selectedStartTime ? allTimePoints.filter((slot) => slot > selectedStartTime) : [];
