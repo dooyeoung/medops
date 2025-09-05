@@ -11,7 +11,7 @@ import java.util.concurrent.TimeUnit;
 
 @Repository
 @RequiredArgsConstructor
-public class VerificationCodeRedisRepository {
+public class VerificationCodeRedisCacheRepository {
 
     private final RedisTemplate<String, String> redisTemplate;
 

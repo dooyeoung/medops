@@ -1,6 +1,6 @@
 package com.medops.adapter.out.persistence.redis.adapter;
 
-import com.medops.adapter.out.persistence.redis.repository.VerificationCodeRedisRepository;
+import com.medops.adapter.out.persistence.redis.repository.VerificationCodeRedisCacheRepository;
 import com.medops.application.port.out.VerificationCodePort;
 import com.medops.application.dto.InvitationCodeDto;
 import lombok.RequiredArgsConstructor;
@@ -10,9 +10,9 @@ import java.util.Random;
 
 @Component
 @RequiredArgsConstructor
-public class VerificationCodeCacheAdapter implements VerificationCodePort {
+public class VerificationCodeRedisCacheAdapter implements VerificationCodePort {
 
-    private final VerificationCodeRedisRepository verificationCodeRedisRepository;
+    private final VerificationCodeRedisCacheRepository verificationCodeRedisCacheRepository;
 
     @Override
     public String generateVerificationCode() {
@@ -23,16 +23,16 @@ public class VerificationCodeCacheAdapter implements VerificationCodePort {
 
     @Override
     public void saveVerificationCode(String email, String code, String hospitalId) {
-        verificationCodeRedisRepository.save(email, code, hospitalId);
+        verificationCodeRedisCacheRepository.save(email, code, hospitalId);
     }
 
     @Override
     public InvitationCodeDto getInvitationCode(String email) {
-        return verificationCodeRedisRepository.getInvitationCode(email);
+        return verificationCodeRedisCacheRepository.getInvitationCode(email);
     }
 
     @Override
     public void removeVerificationCode(String email){
-        verificationCodeRedisRepository.remove(email);
+        verificationCodeRedisCacheRepository.remove(email);
     }
 }
