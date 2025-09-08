@@ -8,8 +8,10 @@ MedOps는 **이벤트 소싱(Event Sourcing)** 개념을 구현한 의료 CRM �
 -  **헥사고날 아키텍처**: 도메인 중심의 클린 아키텍처
 -  **이벤트 소싱**: 의료 기록의 모든 변경사항을 이벤트로 추적
 -  **실시간 대시보드**: 예약 현황, 매출 통계, 성과 분석
--  **JWT 인증**: 사용자/관리자 역할 기반 접근 제어
+-  **JWT 인증**: 사용자/관리자 역할 기반 접근 제어 
 
+demo : https://medops.vercel.app/
+ 
 ---
 ## 기술 스택
 
@@ -218,7 +220,7 @@ FRONTEND_URL=http://localhost:5173
 
 ```bash
 # 프로젝트 루트에서
-./gradlew bootRun
+ export $(grep -v '^#' .env.local | xargs) && ./gradlew bootRun
 
 # 또는 개발 프로필로
 SPRING_PROFILES_ACTIVE=dev ./gradlew bootRun
@@ -266,26 +268,4 @@ npm run lint
 
 # 코드 포맷팅
 npm run format
-```
----
-##  배포
-
-### Docker 컨테이너
-
-```bash
-# Docker 이미지 빌드
-docker build -t medops .
-
-# Docker Compose 실행 (MongoDB, Redis 포함)
-docker-compose up -d
-```
-
-### 프로덕션 환경
-
-```bash
-# 백엔드 빌드
-./gradlew build -x test
-
-# 프론트엔드 빌드
-cd frontend && npm run build
 ```
