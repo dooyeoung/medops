@@ -20,7 +20,6 @@ export interface DashboardStatsResponse {
     confirmationRate: number;
     cancellationRate: number;
     avgDailyBookings: number;
-    noShowRate: number;
   };
 }
 

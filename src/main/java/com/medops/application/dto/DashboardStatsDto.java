@@ -32,7 +32,6 @@ public record DashboardStatsDto(
     public record PerformanceStats(
         double confirmationRate,
         double cancellationRate,
-        double avgDailyBookings,
-        double noShowRate
+        double avgDailyBookings
     ) {}
 }

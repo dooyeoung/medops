@@ -253,7 +253,6 @@ public class DashboardService implements DashboardUseCase {
                 .confirmationRate(0.0)
                 .cancellationRate(0.0)
                 .avgDailyBookings(0.0)
-                .noShowRate(0.0)
                 .build();
         }
         
@@ -268,13 +267,11 @@ public class DashboardService implements DashboardUseCase {
         double confirmationRate = (confirmed * 100.0) / total;
         double cancellationRate = (canceled * 100.0) / total;
         double avgDailyBookings = total / 30.0; // 한달 기준
-        double noShowRate = 5.0; // 고정값 (실제로는 별도 추적 필요)
         
         return DashboardStatsDto.PerformanceStats.builder()
             .confirmationRate(Math.round(confirmationRate * 100.0) / 100.0)
             .cancellationRate(Math.round(cancellationRate * 100.0) / 100.0)
             .avgDailyBookings(Math.round(avgDailyBookings * 10.0) / 10.0)
-            .noShowRate(noShowRate)
             .build();
     }
     

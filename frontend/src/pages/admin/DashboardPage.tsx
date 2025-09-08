@@ -210,7 +210,7 @@ export default function DashboardPage() {
           type: 'shadow',
         },
         formatter: (params: any[]) => {
-          let result = `<strong>${params[0].axisValue} 의사</strong><br/>`;
+          let result = `<strong>${params[0].axisValue}</strong><br/>`;
           let totalReservations = 0;
 
           // 0이 아닌 항목들만 표시하고, 0인 항목들은 별도로 처리
@@ -784,14 +784,12 @@ export default function DashboardPage() {
               <div className="text-center p-3 bg-blue-50 rounded-lg border-l-4 border-blue-400">
                 <div className="text-2xl font-bold text-blue-600 ">{dashboardStats?.thisMonth.totalBookings || 0}</div>
                 <div className="text-sm text-blue-700 ">총 예약</div>
-                <div className="text-xs text-blue-500 mt-1">전기간 대비 +{Math.floor(Math.random() * 15) + 5}%</div>
               </div>
               <div className="text-center p-3 bg-green-50 rounded-lg border-l-4 border-green-400">
                 <div className="text-2xl font-bold text-green-600">
                   {(dashboardStats?.thisMonth.revenue || 0).toLocaleString()}
                 </div>
                 <div className="text-sm text-green-700">총 매출 (만원)</div>
-                <div className="text-xs text-green-500 mt-1">전기간 대비 +{Math.floor(Math.random() * 20) + 8}%</div>
               </div>
             </div>
 
@@ -806,15 +804,6 @@ export default function DashboardPage() {
                   <span className="text-lg font-bold text-green-600">
                     {dashboardStats?.thisMonth.completedTreatments || 0}건
                   </span>
-                  <div className="text-xs text-green-500">
-                    완료율{' '}
-                    {Math.round(
-                      ((dashboardStats?.thisMonth.completedTreatments || 0) /
-                        (dashboardStats?.thisMonth.totalBookings || 1)) *
-                        100,
-                    )}
-                    %
-                  </div>
                 </div>
               </div>
 
@@ -833,7 +822,6 @@ export default function DashboardPage() {
                       : 0}
                     원
                   </span>
-                  <div className="text-xs text-blue-500">시술당 평균</div>
                 </div>
               </div>
 
@@ -846,7 +834,6 @@ export default function DashboardPage() {
                   <span className="text-lg font-bold text-purple-600">
                     {dashboardStats?.performance.avgDailyBookings || 0}건
                   </span>
-                  <div className="text-xs text-purple-500">하루 평균</div>
                 </div>
               </div>
             </div>
@@ -861,9 +848,9 @@ export default function DashboardPage() {
                   </div>
                 </div>
                 <div>
-                  <div className="text-sm text-muted-foreground">노쇼율</div>
+                  <div className="text-sm text-muted-foreground">취소율</div>
                   <div className="text-xl font-bold text-orange-600">
-                    {dashboardStats?.performance.noShowRate || 0}%
+                    {dashboardStats?.performance.cancellationRate || 0}%
                   </div>
                 </div>
               </div>
@@ -882,14 +869,12 @@ export default function DashboardPage() {
               <div className="text-center p-3 bg-blue-50 rounded-lg border-l-4 border-blue-400">
                 <div className="text-2xl font-bold text-blue-600">{dashboardStats?.thisMonth.newCustomers || 0}</div>
                 <div className="text-sm text-blue-700">신규 고객</div>
-                <div className="text-xs text-blue-500 mt-1">전기간 대비 +{Math.floor(Math.random() * 25) + 10}%</div>
               </div>
               <div className="text-center p-3 bg-green-50 rounded-lg border-l-4 border-green-400">
                 <div className="text-2xl font-bold text-green-600">
                   {dashboardStats?.thisMonth.returningCustomers || 0}
                 </div>
                 <div className="text-sm text-green-700">재방문 고객</div>
-                <div className="text-xs text-green-500 mt-1">전기간 대비 +{Math.floor(Math.random() * 15) + 5}%</div>
               </div>
             </div>
 
@@ -914,7 +899,6 @@ export default function DashboardPage() {
                       : 0}
                     %
                   </span>
-                  <div className="text-xs text-purple-500">고객 만족도 지표</div>
                 </div>
               </div>
 
@@ -936,7 +920,6 @@ export default function DashboardPage() {
                       : 0}
                     원
                   </span>
-                  <div className="text-xs text-orange-500">고객 생애 가치</div>
                 </div>
               </div>
 
@@ -950,7 +933,6 @@ export default function DashboardPage() {
                       (dashboardStats?.thisMonth.returningCustomers || 0)}
                     명
                   </span>
-                  <div className="text-xs text-cyan-500">최근 30일 총 고객 수</div>
                 </div>
               </div>
             </div>
@@ -973,16 +955,6 @@ export default function DashboardPage() {
                       : 0}
                     %
                   </div>
-                  <div className="text-xs text-blue-500 mt-1">
-                    {Math.round(
-                      ((dashboardStats?.thisMonth.newCustomers || 0) /
-                        ((dashboardStats?.thisMonth.newCustomers || 0) +
-                          (dashboardStats?.thisMonth.returningCustomers || 0))) *
-                        100,
-                    ) > 60
-                      ? '성장세 🚀'
-                      : '안정세 📊'}
-                  </div>
                 </div>
                 <div>
                   <div className="text-sm text-muted-foreground">고객 충성도</div>
@@ -996,32 +968,7 @@ export default function DashboardPage() {
                       ? '높음'
                       : '보통'}
                   </div>
-                  <div className="text-xs text-green-500 mt-1">
-                    {Math.round(
-                      ((dashboardStats?.thisMonth.returningCustomers || 0) /
-                        ((dashboardStats?.thisMonth.newCustomers || 0) +
-                          (dashboardStats?.thisMonth.returningCustomers || 0))) *
-                        100,
-                    )}
-                    % 재방문
-                  </div>
                 </div>
-              </div>
-            </div>
-
-            {/* 일일 고객 획득 */}
-            <div className="mt-3 pt-2 border-t">
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-muted-foreground flex items-center gap-2">📈 일평균 고객 획득</span>
-                <span className="font-medium text-indigo-600">
-                  {Math.round(
-                    (((dashboardStats?.thisMonth.newCustomers || 0) +
-                      (dashboardStats?.thisMonth.returningCustomers || 0)) /
-                      30) *
-                      10,
-                  ) / 10}
-                  명/일
-                </span>
               </div>
             </div>
           </CardContent>
