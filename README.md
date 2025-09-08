@@ -141,31 +141,49 @@ flowchart LR
     EventHandlers -->|State| Proseccor
 ```
 
-**이벤트 소싱 흐름:**
-1. **Command** → **Processor**: 비즈니스 요청을 커맨드로 처리
-2. **Processor** → **Event**: 도메인 이벤트 생성 및 발행
-3. **Event** → **Event Store**: 모든 이벤트를 영구 저장
-4. **Event Handler**: 이벤트를 구독하여 스냅샷과 읽기 모델 업데이트
-5. **Event Replay**: 저장된 이벤트를 재생하여 상태 복원
+**실제 의료 예약 시나리오로 보는 이벤트 소싱:**
 
-**핵심 이점:**
-- **완전한 감사 추적**: 모든 변경사항이 이벤트로 기록됨
-- **시간 여행**: 과거 임의 시점의 상태 복원 가능
-- **성능 최적화**: 스냅샷을 통한 빠른 조회
-- **확장성**: 이벤트 기반 비동기 처리
-
-```java
-// 이벤트 문서 구조
-@Document("medops_medical_record_events")
-public class MedicalRecordEventDocument {
-    private String recordId;
-    private String eventType;
-    private Instant createdAt;
-    private MedicalRecordStatus status;
-    private Map<String, Object> payload;
-    private Integer version;
-}
+#### 1️⃣ 새로운 예약 생성
 ```
+환자가 병원 예약을 생성하는 경우:
+Controller → Processor → CommandExecutor → EventStore
+
+• CreateMedicalRecordCommand 전달
+• CommandExecutor가 MedicalRecordCreatedEvent 생성
+• EventStore에 이벤트 저장 (version: 1)
+• EventHandler가 스냅샷 생성
+```
+
+#### 2️⃣ 예약 상태 변경 (확정)
+```
+의사가 예약을 확정하는 경우:
+Controller → Processor → [스냅샷 조회] → EventHandler → CommandExecutor → EventStore
+
+• ConfirmMedicalRecordCommand 전달
+• 기존 스냅샷에서 현재 상태 조회 (PENDING)
+• EventHandler가 최신 상태로 복원
+• StatusChangedEvent 생성 (PENDING → CONFIRMED)
+• EventStore에 저장 (version: 2)
+```
+
+#### 3️⃣ 예약 취소 및 상태 복원
+```
+환자가 예약을 취소하고, 관리자가 과거 상태를 조회하는 경우:
+Controller → Processor → EventStore [Query Events] → EventHandler
+
+• CancelMedicalRecordCommand 실행 → StatusChangedEvent (version: 3)
+• 과거 시점 조회 요청시:
+  - EventStore에서 특정 version까지의 이벤트만 조회
+  - EventHandler가 순차적으로 이벤트 재생
+  - 해당 시점의 정확한 상태 복원
+```
+
+**이벤트 소싱의 핵심 이점:**
+- **완전한 감사 추적**: 예약 생성 → 확정 → 취소 전 과정이 이벤트로 기록
+- **시간 여행 디버깅**: "왜 이 예약이 취소되었나?" → 이벤트 히스토리 조회
+- **성능 최적화**: 스냅샷으로 빠른 현재 상태 조회, 필요시에만 이벤트 재생
+- **장애 복구**: 데이터 손실시 모든 이벤트를 재생하여 완전 복원
+
 
 ## 시작하기
 
