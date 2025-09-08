@@ -10,6 +10,7 @@ MedOps는 **이벤트 소싱(Event Sourcing)** 개념을 구현한 의료 CRM �
 -  **실시간 대시보드**: 예약 현황, 매출 통계, 성과 분석
 -  **JWT 인증**: 사용자/관리자 역할 기반 접근 제어
 
+---
 ## 기술 스택
 
 ### 백엔드 (Spring Boot)
@@ -184,7 +185,7 @@ Controller → Processor → EventStore [Query Events] → EventHandler
 - **성능 최적화**: 스냅샷으로 빠른 현재 상태 조회, 필요시에만 이벤트 재생
 - **장애 복구**: 데이터 손실시 모든 이벤트를 재생하여 완전 복원
 
-
+---
 ## 시작하기
 
 ### 사전 요구사항
@@ -236,7 +237,7 @@ npm run dev
 서버 실행 후 다음 URL에서 API 문서를 확인할 수 있습니다:
 - **Swagger UI**: http://localhost:8080/swagger-ui.html
 - **OpenAPI JSON**: http://localhost:8080/v3/api-docs
-
+---
 ##  테스트
 
 ### 백엔드 테스트
@@ -266,26 +267,7 @@ npm run lint
 # 코드 포맷팅
 npm run format
 ```
-
-##  모니터링 및 성능
-
-### 코드 품질
-- **JaCoCo**: 80% 이상 코드 커버리지 유지
-- **E2E 테스트**: 실제 데이터베이스를 사용한 통합 테스트
-- **ESLint + Prettier**: 일관된 코드 스타일
-
-### 데이터베이스 성능
-- **MongoDB**: 인덱스 최적화된 쿼리
-- **Redis**: 세션 및 캐시 성능 최적화
-- **이벤트 스토어**: 배치 처리 및 스냅샷 전략
-
-##  보안
-
-- **JWT 토큰**: stateless 인증 시스템
-- **역할 기반 접근 제어**: 사용자/관리자 권한 분리
-- **CORS 설정**: 프론트엔드 도메인 제한
-- **입력 검증**: Bean Validation을 통한 데이터 검증
-
+---
 ##  배포
 
 ### Docker 컨테이너
@@ -307,7 +289,7 @@ docker-compose up -d
 # 프론트엔드 빌드
 cd frontend && npm run build
 ```
-
+---
 ##  TODO - 개선 사항
 
 
