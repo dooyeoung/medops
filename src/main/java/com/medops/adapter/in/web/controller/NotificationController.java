@@ -17,13 +17,11 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/admin/notifications")
 @RequiredArgsConstructor
-public class NotificationController {
+public class NotificationController implements NotificationControllerSpec {
 
     private final SseEmitterService sseEmitterService;
 
-    /**
-     * 관리자용 SSE 연결 엔드포인트
-     */
+    @Override
     @GetMapping(value = "/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public SseEmitter subscribeNotifications(@AdminSession Admin admin) {
         log.info("SSE 구독 요청: adminId={}, hospitalId={}", admin.getId(), admin.getHospital().getId());
@@ -31,9 +29,7 @@ public class NotificationController {
         return sseEmitterService.subscribe(admin.getHospital().getId());
     }
 
-    /**
-     * SSE 연결 상태 조회 (모니터링용)
-     */
+    @Override
     @GetMapping("/status")
     public Map<String, Integer> getConnectionStatus(@AdminSession Admin admin) {
         return sseEmitterService.getConnectionStatus();
