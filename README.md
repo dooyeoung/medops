@@ -106,26 +106,53 @@ graph LR
     class DB,Domain external
 ```
 
-**의존성 흐름 (단순화):**
-1. `Controller` → `UseCase` (인터페이스)
-2. `UseCase` ← `Service` (구현체)
-3. `Service` → `Port` (인터페이스) 
-4. `Port` ← `Adapter` (구현체)
-5. `Adapter` → `Database` (외부 시스템)
+**데이터 흐름과 의존성:**
 
-**핵심 원칙:**
-- **인터페이스 분리**: UseCase와 Port는 인터페이스 (점선)
-- **구현체 주입**: Service와 Adapter는 구현체 (실선)
-- **의존성 방향**: 항상 구현체가 인터페이스에 의존
+애플리케이션의 데이터는 다음과 같이 흐릅니다:
+`웹 요청` → `컨트롤러` → `유스케이스` → `서비스` → `포트` → `어댑터` → `데이터베이스`
+
+하지만 의존성 방향은 반대입니다:
+- `컨트롤러`는 `유스케이스 인터페이스`에 의존
+- `서비스`가 `유스케이스 인터페이스`를 구현
+- `서비스`는 `포트 인터페이스`에 의존  
+- `어댑터`가 `포트 인터페이스`를 구현
+
+이를 통해 외부 시스템(데이터베이스, API 등)이 변경되어도 핵심 비즈니스 로직은 영향받지 않습니다.
 
 ### 이벤트 소싱 구현
 
 의료 기록 관리에 이벤트 소싱 패턴을 적용하여 모든 변경사항을 추적합니다:
 
-- **Event Store**: 모든 의료 기록 변경을 이벤트로 저장
-- **Snapshots**: 성능 최적화를 위한 스냅샷 생성
-- **Event Replay**: 이벤트 재생을 통한 상태 복원
-- **Audit Trail**: 완전한 감사 추적 기능
+```mermaid
+flowchart LR
+    Controller -->|Message| Proseccor
+
+    Proseccor -->|QueryEvents| EventStore
+    EventStore -->|Events| Proseccor
+
+    EventStore --> Database
+
+    EventStore -->|CollectEvents| Proseccor
+
+    Proseccor -->|Command| CommandExecutors
+    CommandExecutors -->|Events| Proseccor
+
+    Proseccor -->|Events| EventHandlers
+    EventHandlers -->|State| Proseccor
+```
+
+**이벤트 소싱 흐름:**
+1. **Command** → **Processor**: 비즈니스 요청을 커맨드로 처리
+2. **Processor** → **Event**: 도메인 이벤트 생성 및 발행
+3. **Event** → **Event Store**: 모든 이벤트를 영구 저장
+4. **Event Handler**: 이벤트를 구독하여 스냅샷과 읽기 모델 업데이트
+5. **Event Replay**: 저장된 이벤트를 재생하여 상태 복원
+
+**핵심 이점:**
+- **완전한 감사 추적**: 모든 변경사항이 이벤트로 기록됨
+- **시간 여행**: 과거 임의 시점의 상태 복원 가능
+- **성능 최적화**: 스냅샷을 통한 빠른 조회
+- **확장성**: 이벤트 기반 비동기 처리
 
 ```java
 // 이벤트 문서 구조
