@@ -16,21 +16,14 @@ demo : https://medops.vercel.app/
 ## 기술 스택
 
 ### 백엔드 (Spring Boot)
-- **Java 17** + **Spring Boot 3.5.3**
-- **Spring Security** + **JWT** (jjwt 0.12.6)
-- **MongoDB** - 메인 데이터 저장소
-- **Redis** - 캐싱 및 세션 관리
-- **SSE** - 실시간 알림 및 병원별 연결 관리
-- **SpringDoc OpenAPI** - API 문서화
-- **JaCoCo** - 코드 커버리지 (80% 이상)
+- Java + Spring Boot + Spring Security
+- MongoDB (데이터 저장), Redis (캐싱)
+- JWT 인증, SSE 실시간 알림
+- OpenAPI 문서화, JaCoCo 테스트 커버리지
 
 ### 프론트엔드 (React + TypeScript)
-- **React 19.1.1** + **TypeScript 5.8.3**
-- **Vite 7.1.2** - 빌드 도구
-- **Tailwind CSS 4.1.12** - 스타일링
-- **Radix UI** - UI 컴포넌트
-- **React Router 7.8.1** - 라우팅
-- **ECharts** + **Recharts** - 데이아키텍처
+- React + TypeScript + Vite
+- Tailwind CSS (스타일링), ECharts/Recharts (차트)
 
 ### 백엔드 디렉토리 구조 (헥사고날 아키텍처)
 
