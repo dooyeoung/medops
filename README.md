@@ -4,7 +4,7 @@ MedOps는 **이벤트 소싱(Event Sourcing)** 개념을 구현한 의료 CRM �
 
 ### 주요 특징
 
--  **의료 전문 CRM**: 병원 예약, 환자 관리, 의료진 스케줄링
+-  **데이터 관리**: 병원 예약, 환자 관리, 의료진 스케줄링
 -  **헥사고날 아키텍처**: 도메인 중심의 클린 아키텍처
 -  **이벤트 소싱**: 의료 기록의 모든 변경사항을 이벤트로 추적
 -  **실시간 대시보드**: 예약 현황, 매출 통계, 성과 분석
@@ -26,120 +26,14 @@ MedOps는 **이벤트 소싱(Event Sourcing)** 개념을 구현한 의료 CRM �
 - **Tailwind CSS 4.1.12** - 스타일링
 - **Radix UI** - UI 컴포넌트
 - **React Router 7.8.1** - 라우팅
-- **ECharts** + **Recharts** - 데이터 시각화
-
-## 🏗️ 아키텍처
+- **ECharts** + **Recharts** - 데이아키텍처
 
 ### 헥사고날 아키텍처 (Ports and Adapters)
 
-```mermaid
-graph TD
-    subgraph "🌐 External Systems"
-        WEB[Web Browser<br/>Mobile App]
-        DB[MongoDB<br/>Database]
-        CACHE[Redis<br/>Cache]
-        ES[Event Store]
-    end
-    
-    subgraph HEX["⬡ Hexagonal Architecture"]
-        subgraph "🔌 Primary Adapters (Driving)"
-            REST[REST API<br/>Controllers]
-            CLI[CLI Interface]
-        end
-        
-        subgraph "🔧 Primary Ports (Driving)"
-            UC_PORT[Use Case<br/>Interfaces]
-        end
-        
-        subgraph "💼 Application Core"
-            subgraph "📋 Application Layer"
-                UC[Use Cases<br/>Services]
-                CMD[Commands<br/>Queries]
-            end
-            
-            subgraph "🏛️ Domain Layer"
-                ENT[Domain<br/>Entities]
-                VO[Value<br/>Objects]
-                DOM_EVT[Domain<br/>Events]
-                BIZ[Business<br/>Rules]
-            end
-        end
-        
-        subgraph "⚙️ Secondary Ports (Driven)"
-            PERSIST_PORT[Persistence<br/>Ports]
-            CACHE_PORT[Cache<br/>Ports]
-            EVENT_PORT[Event<br/>Ports]
-        end
-        
-        subgraph "🔩 Secondary Adapters (Driven)"
-            MONGO_ADAPT[MongoDB<br/>Adapter]
-            REDIS_ADAPT[Redis<br/>Adapter]
-            EVENT_ADAPT[Event Store<br/>Adapter]
-        end
-    end
-    
-    %% External to Primary Adapters
-    WEB -->|HTTP Requests| REST
-    
-    %% Primary Adapters to Ports
-    REST -->|implements| UC_PORT
-    CLI -->|implements| UC_PORT
-    
-    %% Ports to Application Core
-    UC_PORT -->|calls| UC
-    UC -->|uses| CMD
-    UC -->|orchestrates| ENT
-    UC -->|applies| BIZ
-    UC -->|publishes| DOM_EVT
-    
-    %% Application to Secondary Ports
-    UC -->|depends on| PERSIST_PORT
-    UC -->|depends on| CACHE_PORT
-    UC -->|depends on| EVENT_PORT
-    
-    %% Secondary Ports to Adapters
-    PERSIST_PORT -->|implemented by| MONGO_ADAPT
-    CACHE_PORT -->|implemented by| REDIS_ADAPT
-    EVENT_PORT -->|implemented by| EVENT_ADAPT
-    
-    %% Secondary Adapters to External Systems
-    MONGO_ADAPT -->|connects to| DB
-    REDIS_ADAPT -->|connects to| CACHE
-    EVENT_ADAPT -->|connects to| ES
-    
-    %% Styling
-    classDef external fill:#ffebee,stroke:#c62828,stroke-width:2px
-    classDef primaryAdapter fill:#e3f2fd,stroke:#1565c0,stroke-width:2px
-    classDef primaryPort fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px
-    classDef application fill:#e8f5e8,stroke:#2e7d32,stroke-width:2px
-    classDef domain fill:#fff8e1,stroke:#f57f17,stroke-width:2px
-    classDef secondaryPort fill:#fce4ec,stroke:#c2185b,stroke-width:2px
-    classDef secondaryAdapter fill:#f1f8e9,stroke:#388e3c,stroke-width:2px
-    classDef hex fill:#f5f5f5,stroke:#424242,stroke-width:3px,stroke-dasharray: 5 5
-    
-    class WEB,DB,CACHE,ES external
-    class REST,CLI primaryAdapter
-    class UC_PORT primaryPort
-    class UC,CMD application
-    class ENT,VO,DOM_EVT,BIZ domain
-    class PERSIST_PORT,CACHE_PORT,EVENT_PORT secondaryPort
-    class MONGO_ADAPT,REDIS_ADAPT,EVENT_ADAPT secondaryAdapter
-    class HEX hex
-```
-
-**헥사고날 아키텍처 핵심 개념:**
-
- **Primary Side (Driving)** - 애플리케이션을 호출하는 쪽:
-- **Primary Adapters**: REST API, CLI 등 외부에서 애플리케이션을 호출
-- **Primary Ports**: Use Case 인터페이스로 애플리케이션 진입점 정의
-
- **Secondary Side (Driven)** - 애플리케이션이 호출하는 쪽:
-- **Secondary Ports**: 애플리케이션이 외부 시스템에 의존하는 인터페이스
-- **Secondary Adapters**: 실제 외부 시스템(DB, Cache 등)과의 연결 구현
-
- **의존성 방향**: 모든 의존성이 중심(Domain)을 향해 흐름
-- Adapter → Port → Application → Domain
-- 외부 변경사항이 내부 비즈니스 로직에 영향을 주지 않음
+**핵심 개념 (단순화):**
+- **외부 → 포트 → 내부**: 모든 외부 연결은 포트(인터페이스)를 통해
+- **의존성 역전**: 구현체가 인터페이스에 의존
+- **도메인 격리**: 비즈니스 로직은 외부 기술과 분리
 
 ### 백엔드 디렉토리 구조
 
@@ -196,94 +90,33 @@ src/main/java/com/medops/
 ### 레이어 간 통신 관계
 
 ```mermaid
-graph TB
-    subgraph "Adapter Layer (In)"
-        AC[UserApiController<br/>AdminApiController<br/>DashboardApiController]
-    end
+graph LR
+    Controller[ Controller] --> UseCase[ UseCase]
+    UseCase -.-> Service[️ Service]
+    Service --> Port[ Port]
+    Port -.-> Adapter[ Adapter]
+    Adapter --> DB[( Database)]
     
-    subgraph "Application Layer"
-        UC[UserUseCase<br/>AdminUseCase<br/>MedicalRecordViewUseCase]
-        SVC[UserService<br/>AdminService<br/>DashboardService]
-        
-        subgraph "Ports (Out)"
-            SP[SaveUserPort<br/>LoadUserPort<br/>TokenPort]
-        end
-    end
+    classDef interface fill:#f3e5f5,stroke:#7b1fa2,stroke-dasharray: 5 5
+    classDef implementation fill:#e8f5e8,stroke:#2e7d32
+    classDef external fill:#ffebee,stroke:#c62828
     
-    subgraph "Domain Layer"
-        ENT[User<br/>Admin<br/>Hospital<br/>MedicalRecord]
-        ENUM[UserStatus<br/>MedicalRecordStatus]
-        EVT[DomainEvents]
-    end
-    
-    subgraph "Adapter Layer (Out)"
-        PA[UserPersistenceAdapter<br/>HospitalPersistenceAdapter<br/>TokenAdapter]
-        
-        subgraph "MongoDB"
-            REPO[UserDocumentRepository<br/>HospitalDocumentRepository<br/>MedicalRecordEventDocumentRepository]
-            DOC[UserDocument<br/>HospitalDocument<br/>MedicalRecordEventDocument]
-        end
-        
-        subgraph "Redis"
-            CACHE[VerificationCodeRedisCacheRepository]
-        end
-        
-        subgraph "Event Store"
-            ES[MedicalRecordEventStoreAdapter]
-        end
-    end
-    
-    %% Controller -> UseCase
-    AC -->|depends on| UC
-    
-    %% UseCase -> Service (Implementation)
-    UC -.->|implements| SVC
-    
-    %% Service -> OutPorts
-    SVC -->|depends on| SP
-    
-    %% Service -> Domain
-    SVC -->|uses| ENT
-    SVC -->|uses| ENUM
-    SVC -->|publishes| EVT
-    
-    %% OutPorts -> Adapters
-    SP -.->|implements| PA
-    
-    %% Adapters -> External Systems
-    PA -->|uses| REPO
-    PA -->|uses| CACHE
-    PA -->|uses| ES
-    
-    %% Repository -> Document
-    REPO -->|manages| DOC
-    
-    classDef controller fill:#e1f5fe
-    classDef usecase fill:#f3e5f5
-    classDef service fill:#e8f5e8
-    classDef port fill:#fff3e0
-    classDef adapter fill:#fce4ec
-    classDef domain fill:#f1f8e9
-    
-    class AC controller
-    class UC usecase
-    class SVC service
-    class SP port
-    class PA adapter
-    class ENT,ENUM,EVT domain
+    class UseCase,Port interface
+    class Controller,Service,Adapter implementation
+    class DB,Domain external
 ```
 
-**주요 의존성 흐름:**
-1. **Controller → UseCase**: REST API 컨트롤러가 유스케이스 인터페이스에 의존
-2. **UseCase ← Service**: 서비스가 유스케이스 인터페이스를 구현
-3. **Service → OutPort**: 서비스가 아웃바운드 포트 인터페이스에 의존
-4. **OutPort ← Adapter**: 어댑터가 아웃바운드 포트를 구현
-5. **Service ↔ Domain**: 서비스가 도메인 엔티티와 이벤트 사용
+**의존성 흐름 (단순화):**
+1. `Controller` → `UseCase` (인터페이스)
+2. `UseCase` ← `Service` (구현체)
+3. `Service` → `Port` (인터페이스) 
+4. `Port` ← `Adapter` (구현체)
+5. `Adapter` → `Database` (외부 시스템)
 
-**헥사고날 아키텍처 원칙:**
-- **의존성 역전**: 외부 레이어가 내부 레이어에 의존 (Domain ← Application ← Adapter)
-- **포트와 어댑터**: 인터페이스(포트)를 통한 느슨한 결합
-- **도메인 격리**: 도메인 레이어는 외부 의존성이 없음
+**핵심 원칙:**
+- **인터페이스 분리**: UseCase와 Port는 인터페이스 (점선)
+- **구현체 주입**: Service와 Adapter는 구현체 (실선)
+- **의존성 방향**: 항상 구현체가 인터페이스에 의존
 
 ### 이벤트 소싱 구현
 
@@ -433,7 +266,7 @@ cd frontend && npm run build
 ##  TODO - 개선 사항
 
 
-### ⚡ 성능 최적화
+### 성능 최적화
 - [ ] **데이터베이스 최적화**: 
   - MongoDB 인덱스 전략 개선
   - 쿼리 성능 모니터링
