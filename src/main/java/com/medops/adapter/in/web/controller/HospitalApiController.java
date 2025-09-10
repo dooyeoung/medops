@@ -1,5 +1,6 @@
 package com.medops.adapter.in.web.controller;
 
+import com.medops.adapter.in.annotation.AdminSession;
 import com.medops.adapter.in.web.request.HospitalCreateRequest;
 import com.medops.application.dto.HospitalWithProductsDto;
 import com.medops.application.port.in.usecase.AdminUseCase;
@@ -10,7 +11,9 @@ import com.medops.common.response.Api;
 import com.medops.domain.model.Admin;
 import com.medops.domain.model.Hospital;
 import com.medops.domain.model.TreatmentProduct;
+import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -40,7 +43,14 @@ public class HospitalApiController implements HospitalApiControllerSpec{
     }
 
     @GetMapping("/{hospitalId}")
-    public Api<Hospital> getHospital(@PathVariable String hospitalId) {
+    public Api<Hospital> getHospital(
+        @Parameter(hidden = true) @AdminSession Admin admin,
+        @PathVariable String hospitalId
+    ) {
+        if (!admin.getHospital().getId().equals(hospitalId)) {
+            throw new AccessDeniedException("자신의 병원 정보만 조회할 수 있습니다.");
+        }
+
         Hospital hospital = hospitalUseCase.getHospitalById(hospitalId).orElseThrow(
             () -> new NotFoundResource("병원을 조회할 수 없습니다.")
         );
@@ -48,7 +58,13 @@ public class HospitalApiController implements HospitalApiControllerSpec{
     }
 
     @GetMapping("/{hospitalId}/admins")
-    public Api<List<Admin>> getHospitalAdmins(@PathVariable String hospitalId) {
+    public Api<List<Admin>> getHospitalAdmins(
+        @Parameter(hidden = true) @AdminSession Admin admin,
+        @PathVariable String hospitalId
+    ) {
+        if (!admin.getHospital().getId().equals(hospitalId)) {
+            throw new AccessDeniedException("자신의 병원 정보만 조회할 수 있습니다.");
+        }
         return Api.OK(adminUseCase.getAdminsByHospitalId(hospitalId));
     }
 
