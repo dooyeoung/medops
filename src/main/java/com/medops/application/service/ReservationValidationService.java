@@ -19,6 +19,6 @@ public class ReservationValidationService implements ReservationValidationUseCas
     @Override
     public boolean isReservationAvailable(String hospitalId, String treatmentProductId, Instant startTime, Instant endTime) {
         TreatmentProduct treatmentProduct = loadTreatmentProductPort.loadTreatmentProductById(treatmentProductId).orElseThrow();
-        return treatmentProduct.getMaxCapacity() > medicalRecordViewPort.loadMedicalRecordsByTreatmentIdInRange(treatmentProductId, startTime, endTime).size();
+        return treatmentProduct.getMaxCapacity() <= medicalRecordViewPort.loadMedicalRecordsByTreatmentIdInRange(treatmentProductId, startTime, endTime).size();
     }
 }
