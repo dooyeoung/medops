@@ -44,13 +44,8 @@ public class HospitalApiController implements HospitalApiControllerSpec{
 
     @GetMapping("/{hospitalId}")
     public Api<Hospital> getHospital(
-        @Parameter(hidden = true) @AdminSession Admin admin,
         @PathVariable String hospitalId
     ) {
-        if (!admin.getHospital().getId().equals(hospitalId)) {
-            throw new AccessDeniedException("자신의 병원 정보만 조회할 수 있습니다.");
-        }
-
         Hospital hospital = hospitalUseCase.getHospitalById(hospitalId).orElseThrow(
             () -> new NotFoundResource("병원을 조회할 수 없습니다.")
         );

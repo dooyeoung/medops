@@ -64,7 +64,7 @@ export default function HospitalDetailPage() {
     selectedDate: new Date(),
     selectedStartTime: '',
     selectedEndTime: '',
-    userMemo: ''
+    userMemo: '',
   });
 
   useEffect(() => {
@@ -118,16 +118,16 @@ export default function HospitalDetailPage() {
     setIsSubmitting(true);
     try {
       await createReservation(data);
-      
+
       // 성공 시에만 폼 데이터 리셋
       setFormData({
         selectedProduct: '',
         selectedDate: new Date(),
         selectedStartTime: '',
         selectedEndTime: '',
-        userMemo: ''
+        userMemo: '',
       });
-      
+
       setIsDialogOpen(false);
       fetchUserReservation();
       toast.success('예약 접수', {

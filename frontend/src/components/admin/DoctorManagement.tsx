@@ -29,21 +29,21 @@ export default function DoctorManagement({ hospitalId }: Props) {
   const [editingDoctor, setEditingDoctor] = useState<Doctor | null>(null);
   const [editDoctorName, setEditDoctorName] = useState('');
 
+  const fetchDoctors = async () => {
+    if (!hospitalId) return;
+
+    setIsLoading(true);
+    try {
+      const doctorsResponse = await getDoctorsByHospital(hospitalId);
+      setDoctors(doctorsResponse.body || []);
+    } catch (err: any) {
+      console.error('Failed to fetch doctors:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchDoctors = async () => {
-      if (!hospitalId) return;
-
-      setIsLoading(true);
-      try {
-        const doctorsResponse = await getDoctorsByHospital(hospitalId);
-        setDoctors(doctorsResponse.body || []);
-      } catch (err: any) {
-        console.error('Failed to fetch doctors:', err);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
     fetchDoctors();
   }, [hospitalId]);
 

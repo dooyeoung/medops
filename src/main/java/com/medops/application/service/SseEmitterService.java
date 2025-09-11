@@ -20,14 +20,11 @@ public class SseEmitterService {
 
     // 병원별로 연결된 SseEmitter들을 관리
     private final Map<String, List<SseEmitter>> hospitalEmitters = new ConcurrentHashMap<>();
-    
-    // 주기적으로 연결 상태 확인을 위한 스케줄러
-    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-    
+
     public SseEmitterService() {
-        scheduler.scheduleWithFixedDelay(() -> {
-            cleanupDeadConnections();
-        }, 10, 10, TimeUnit.SECONDS);
+        // 주기적으로 연결 상태 확인을 위한 스케줄러
+        ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+        scheduler.scheduleWithFixedDelay(this::cleanupDeadConnections, 10, 10, TimeUnit.SECONDS);
     }
 
     /**
@@ -40,8 +37,7 @@ public class SseEmitterService {
         // 병원별 emitter 리스트에 추가
         hospitalEmitters.computeIfAbsent(hospitalId, k -> new CopyOnWriteArrayList<>()).add(emitter);
         
-        log.info("새 SSE 연결 등록: emitterId={}, hospitalId={}, 현재 연결 수={}", 
-                emitterId, hospitalId, hospitalEmitters.get(hospitalId).size());
+        log.info("새 SSE 연결 등록: emitterId={}, hospitalId={}, 현재 연결 수={}", emitterId, hospitalId, hospitalEmitters.get(hospitalId).size());
 
         // 연결 완료 시점에서 제거 처리
         emitter.onCompletion(() -> {
@@ -54,8 +50,7 @@ public class SseEmitterService {
         });
         emitter.onError(throwable -> {
             if (throwable.getClass().getSimpleName().contains("AsyncRequestNotUsableException")) {
-                log.debug("SSE 클라이언트 연결 끊김: emitterId={}, hospitalId={}, error={}", 
-                        emitterId, hospitalId, throwable.getMessage());
+                log.debug("SSE 클라이언트 연결 끊김: emitterId={}, hospitalId={}, error={}", emitterId, hospitalId, throwable.getMessage());
             } else {
                 log.error("SSE 연결 오류: emitterId={}, hospitalId={}", emitterId, hospitalId, throwable);
             }
@@ -64,13 +59,12 @@ public class SseEmitterService {
 
         // 연결 확인 메시지 전송
         try {
-            emitter.send(SseEmitter.event()
-                    .name("CONNECTED")
-                    .data("SSE 연결이 설정되었습니다."));
+            emitter.send(SseEmitter.event().name("CONNECTED").data("SSE 연결이 설정되었습니다."));
         } catch (IOException e) {
-            if (e.getMessage() != null && 
-                (e.getMessage().contains("Broken pipe") || 
-                 e.getMessage().contains("Connection reset"))) {
+            if (
+                e.getMessage() != null &&
+                (e.getMessage().contains("Broken pipe") || e.getMessage().contains("Connection reset"))
+            ) {
                 log.debug("SSE 초기 연결 중 클라이언트 연결 끊김: hospitalId={}", hospitalId);
             } else {
                 log.error("초기 메시지 전송 실패: hospitalId={}", hospitalId, e);
@@ -92,31 +86,28 @@ public class SseEmitterService {
             return;
         }
 
-        log.info("SSE 메시지 전송 시작: hospitalId={}, eventType={}, 대상 수={}", 
-                hospitalId, eventType, emitters.size());
+        log.info("SSE 메시지 전송 시작: hospitalId={}, eventType={}, 대상 수={}", hospitalId, eventType, emitters.size());
 
         // 모든 emitter에게 메시지 전송 (Iterator 사용으로 안전한 제거)
         List<SseEmitter> failedEmitters = new ArrayList<>();
         int successCount = 0;
-        
-        for (int i = 0; i < emitters.size(); i++) {
-            SseEmitter emitter = emitters.get(i);
+
+        for (SseEmitter emitter : emitters) {
             String emitterId = "emitter-" + System.identityHashCode(emitter);
-            
+
             try {
-                log.debug("SSE 메시지 전송 중: emitterId={}, hospitalId={}, eventType={}", 
-                        emitterId, hospitalId, eventType);
-                        
-                emitter.send(SseEmitter.event()
-                        .name(eventType)
-                        .data(data));
-                        
+                log.debug("SSE 메시지 전송 중: emitterId={}, hospitalId={}, eventType={}", emitterId, hospitalId, eventType);
+
+                emitter.send(SseEmitter.event().name(eventType).data(data));
+
                 successCount++;
                 log.debug("SSE 메시지 전송 성공: emitterId={}", emitterId);
-                
+
             } catch (Exception e) {
-                log.warn("SSE 메시지 전송 실패: emitterId={}, hospitalId={}, eventType={}, error={}", 
-                        emitterId, hospitalId, eventType, e.getClass().getSimpleName() + ": " + e.getMessage());
+                log.warn(
+                    "SSE 메시지 전송 실패: emitterId={}, hospitalId={}, eventType={}, error={}",
+                    emitterId, hospitalId, eventType, e.getClass().getSimpleName() + ": " + e.getMessage()
+                );
                 failedEmitters.add(emitter);
             }
         }
@@ -126,8 +117,10 @@ public class SseEmitterService {
             emitters.remove(failedEmitter);
         }
         
-        log.info("SSE 메시지 전송 완료: hospitalId={}, eventType={}, 성공={}, 실패={}, 남은 연결={}", 
-                hospitalId, eventType, successCount, failedEmitters.size(), emitters.size());
+        log.info(
+            "SSE 메시지 전송 완료: hospitalId={}, eventType={}, 성공={}, 실패={}, 남은 연결={}",
+            hospitalId, eventType, successCount, failedEmitters.size(), emitters.size()
+        );
     }
 
     /**
@@ -137,24 +130,13 @@ public class SseEmitterService {
         List<SseEmitter> emitters = hospitalEmitters.get(hospitalId);
         if (emitters != null) {
             emitters.remove(emitter);
-            log.info("SSE 연결 제거: hospitalId={}, 남은 연결 수={}", 
-                    hospitalId, emitters.size());
+            log.info("SSE 연결 제거: hospitalId={}, 남은 연결 수={}", hospitalId, emitters.size());
             
             // 빈 리스트는 제거
             if (emitters.isEmpty()) {
                 hospitalEmitters.remove(hospitalId);
             }
         }
-    }
-
-    /**
-     * 현재 연결 상태 조회 (모니터링용)
-     */
-    public Map<String, Integer> getConnectionStatus() {
-        Map<String, Integer> status = new ConcurrentHashMap<>();
-        hospitalEmitters.forEach((hospitalId, emitters) -> 
-                status.put(hospitalId, emitters.size()));
-        return status;
     }
     
     /**
@@ -183,8 +165,7 @@ public class SseEmitterService {
                 }
                 
                 if (!deadEmitters.isEmpty()) {
-                    log.info("죽은 SSE 연결 제거: hospitalId={}, 제거된 수={}, 남은 수={}", 
-                            hospitalId, deadEmitters.size(), emitters.size());
+                    log.info("죽은 SSE 연결 제거: hospitalId={}, 제거된 수={}, 남은 수={}", hospitalId, deadEmitters.size(), emitters.size());
                 }
                 
                 // 빈 리스트는 제거
@@ -193,8 +174,7 @@ public class SseEmitterService {
                 }
             }
             
-            log.info("전체 죽은 SSE 연결 정리 완료: 제거된 총 수={}, 현재 총 연결 수={}", 
-                    totalCleaned, hospitalEmitters.values().stream().mapToInt(List::size).sum());
+            log.info("전체 죽은 SSE 연결 정리 완료: 제거된 총 수={}, 현재 총 연결 수={}", totalCleaned, hospitalEmitters.values().stream().mapToInt(List::size).sum());
             
         } catch (Exception e) {
             log.error("죽은 SSE 연결 정리 중 오류 발생", e);

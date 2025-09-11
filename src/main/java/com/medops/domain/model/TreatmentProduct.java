@@ -30,7 +30,8 @@ public class TreatmentProduct {
             .name("상담")
             .description("일반 상담")
             .maxCapacity(maxCapacity)
-            .price(BigDecimal.valueOf(0))
+            .price(BigDecimal.valueOf(5000))
+            .createdAt(Instant.now())
             .build();
     }
 
@@ -41,7 +42,8 @@ public class TreatmentProduct {
             .name("정기 검진")
             .description("정기 검진")
             .maxCapacity(maxCapacity)
-            .price(BigDecimal.valueOf(0))
+            .price(BigDecimal.valueOf(10000))
+            .createdAt(Instant.now())
             .build();
     }
 }

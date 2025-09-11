@@ -38,31 +38,4 @@ public interface NotificationControllerSpec {
         )
     })
     SseEmitter subscribeNotifications(Admin admin);
-
-    @Operation(
-        summary = "SSE 연결 상태 조회",
-        description = "현재 활성화된 SSE 연결 상태를 조회합니다. 모니터링 및 디버깅 목적으로 사용됩니다."
-    )
-    @ApiResponses({
-        @ApiResponse(
-            responseCode = "200",
-            description = "연결 상태 조회 성공",
-            content = @Content(
-                mediaType = "application/json",
-                schema = @Schema(
-                    type = "object",
-                    example = "{\"totalConnections\": 5, \"activeHospitals\": 3}"
-                )
-            )
-        ),
-        @ApiResponse(
-            responseCode = "401", 
-            description = "인증되지 않은 관리자"
-        ),
-        @ApiResponse(
-            responseCode = "403", 
-            description = "권한이 없는 사용자 (관리자가 아님)"
-        )
-    })
-    Map<String, Integer> getConnectionStatus(Admin admin);
 }

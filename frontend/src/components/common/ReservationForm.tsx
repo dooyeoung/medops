@@ -26,7 +26,15 @@ interface Props {
   };
   onFormChange?: (formData: any) => void;
 }
-export default function ReservationForm({ hospitalId, treatmentProducts, businessHours, forAdmin, onSubmit, initialValues, onFormChange }: Props) {
+export default function ReservationForm({
+  hospitalId,
+  treatmentProducts,
+  businessHours,
+  forAdmin,
+  onSubmit,
+  initialValues,
+  onFormChange,
+}: Props) {
   const [selectedProduct, setSelectedProduct] = useState<string>(initialValues?.selectedProduct || '');
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(initialValues?.selectedDate || new Date());
   const [allTimePoints, setAllTimePoints] = useState<string[]>([]);
@@ -111,7 +119,7 @@ export default function ReservationForm({ hospitalId, treatmentProducts, busines
         selectedStartTime,
         selectedEndTime,
         userMemo,
-        note
+        note,
       });
     }
   }, [selectedProduct, selectedDate, selectedStartTime, selectedEndTime, userMemo, note, onFormChange]);

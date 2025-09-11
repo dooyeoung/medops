@@ -29,9 +29,4 @@ public class NotificationController implements NotificationControllerSpec {
         return sseEmitterService.subscribe(admin.getHospital().getId());
     }
 
-    @Override
-    @GetMapping("/status")
-    public Map<String, Integer> getConnectionStatus(@AdminSession Admin admin) {
-        return sseEmitterService.getConnectionStatus();
-    }
 }

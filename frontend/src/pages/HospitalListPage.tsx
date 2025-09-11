@@ -27,14 +27,14 @@ export default function HospitalListPage() {
   const [hospitals, setHospitals] = useState<Hospital[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const {user, isLoading: authLoading } = useAuth();
+  const { user, isLoading: authLoading } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchHospitals = async () => {
       if (!user) {
         setError('Authentication required to fetch hospital data.');
-        navigate('/login')
+        navigate('/login');
         setIsLoading(false);
         return;
       }

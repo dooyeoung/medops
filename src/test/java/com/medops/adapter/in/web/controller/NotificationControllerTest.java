@@ -39,14 +39,6 @@ class NotificationControllerTest {
                 .andExpect(status().isBadRequest());
     }
 
-    @Test
-    @DisplayName("SSE 연결 상태 조회 - 관리자 세션 없이 호출시 400 에러")
-    @WithMockUser
-    void getConnectionStatus_NoAdminSession_Returns400() throws Exception {
-        // given & when & then
-        mockMvc.perform(get("/api/admin/notifications/status"))
-                .andExpect(status().isBadRequest());
-    }
 
     @Test
     @DisplayName("POST 메소드로 SSE 구독 시도 - 4xx 에러")
@@ -57,14 +49,6 @@ class NotificationControllerTest {
                 .andExpect(status().is4xxClientError());
     }
 
-    @Test
-    @DisplayName("POST 메소드로 연결 상태 조회 시도 - 4xx 에러")
-    @WithMockUser
-    void getConnectionStatus_PostMethod_Returns4xx() throws Exception {
-        // given & when & then
-        mockMvc.perform(post("/api/admin/notifications/status"))
-                .andExpect(status().is4xxClientError());
-    }
 
     @Test
     @DisplayName("PUT 메소드로 SSE 구독 시도 - 4xx 에러")
@@ -75,14 +59,6 @@ class NotificationControllerTest {
                 .andExpect(status().is4xxClientError());
     }
 
-    @Test
-    @DisplayName("DELETE 메소드로 연결 상태 조회 시도 - 4xx 에러")  
-    @WithMockUser
-    void getConnectionStatus_DeleteMethod_Returns4xx() throws Exception {
-        // given & when & then
-        mockMvc.perform(delete("/api/admin/notifications/status"))
-                .andExpect(status().is4xxClientError());
-    }
 
     @Test
     @DisplayName("인증 없이 SSE 구독 시도 - 401 또는 403 에러")
@@ -92,13 +68,6 @@ class NotificationControllerTest {
                 .andExpect(status().is4xxClientError()); // 401 또는 403
     }
 
-    @Test
-    @DisplayName("인증 없이 연결 상태 조회 시도 - 401 또는 403 에러")
-    void getConnectionStatus_NoAuth_ReturnsUnauthorized() throws Exception {
-        // given & when & then
-        mockMvc.perform(get("/api/admin/notifications/status"))
-                .andExpect(status().is4xxClientError()); // 401 또는 403
-    }
 
     @Test
     @DisplayName("SSE 엔드포인트 경로 매핑 확인")
@@ -112,17 +81,6 @@ class NotificationControllerTest {
         // 올바른 경로 매핑 확인됨 (404가 아닌 400 반환)
     }
 
-    @Test
-    @DisplayName("상태 조회 엔드포인트 경로 매핑 확인")
-    @WithMockUser
-    void checkStatusEndpointMapping() throws Exception {
-        // given & when & then
-        mockMvc.perform(get("/api/admin/notifications/status"))
-                .andExpect(status().isBadRequest()) // @AdminSession 없어서 400
-                .andReturn();
-        
-        // 올바른 경로 매핑 확인됨 (404가 아닌 400 반환)
-    }
 
     @Test
     @DisplayName("베이스 경로 확인 - /api/admin/notifications")
