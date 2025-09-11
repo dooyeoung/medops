@@ -82,7 +82,7 @@ class TreatmentProductTest {
             assertThat(consultation.getName()).isEqualTo("상담");
             assertThat(consultation.getDescription()).isEqualTo("일반 상담");
             assertThat(consultation.getMaxCapacity()).isEqualTo(maxCapacity);
-            assertThat(consultation.getPrice()).isEqualByComparingTo(BigDecimal.valueOf(0));
+            assertThat(consultation.getPrice()).isEqualByComparingTo(BigDecimal.valueOf(5000));
         }
 
         @Test
@@ -101,7 +101,7 @@ class TreatmentProductTest {
             assertThat(checkup.getName()).isEqualTo("정기 검진");
             assertThat(checkup.getDescription()).isEqualTo("정기 검진");
             assertThat(checkup.getMaxCapacity()).isEqualTo(maxCapacity);
-            assertThat(checkup.getPrice()).isEqualByComparingTo(BigDecimal.valueOf(0));
+            assertThat(checkup.getPrice()).isEqualByComparingTo(BigDecimal.valueOf(10000));
         }
 
         @Test
@@ -138,8 +138,8 @@ class TreatmentProductTest {
             TreatmentProduct checkup = TreatmentProduct.createRegularCheckup(hospitalId, maxCapacity);
 
             // Then
-            assertThat(consultation.getPrice()).isEqualByComparingTo(BigDecimal.ZERO);
-            assertThat(checkup.getPrice()).isEqualByComparingTo(BigDecimal.ZERO);
+            assertThat(consultation.getPrice()).isEqualByComparingTo(new BigDecimal(5000));
+            assertThat(checkup.getPrice()).isEqualByComparingTo(new BigDecimal(10000));
         }
 
         @Test

@@ -333,9 +333,7 @@ export default function ReservationListTable({
         doctorId: selectedDoctorId,
       });
 
-      toast.success('담당 의사 배정 성공.', {
-        description: '의사 배정이 완료되었습니다',
-      });
+
       setIsDoctorAssignModalOpen(false);
       setSelectedDoctorId('');
       setSelectedReservationForDoctor(null);

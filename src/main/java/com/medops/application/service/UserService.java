@@ -9,6 +9,7 @@ import com.medops.application.port.out.LoadUserPort;
 import com.medops.application.port.out.SaveUserPort;
 import com.medops.domain.model.User;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
@@ -20,6 +21,7 @@ public class UserService implements UserUseCase {
     private final SaveUserPort saveUserPort;
     private final LoadUserPort loadUserPort;
     private final TokenPort tokenPort;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public User createUser(UserRegisterRequest request) {
@@ -31,7 +33,7 @@ public class UserService implements UserUseCase {
             .id(UUID.randomUUID().toString())
             .email(request.email())
             .name(request.name())
-            .password(request.password())
+            .password(passwordEncoder.encode(request.password()))
             .build();
         return saveUserPort.saveUser(user);
     }
@@ -40,7 +42,7 @@ public class UserService implements UserUseCase {
     public String loginUser(UserLoginRequest request) {
         return loadUserPort.loadUserByEmail(request.email())
             .map(user -> {
-                if (!user.getPassword().equals(request.password())){
+                if (passwordEncoder.matches(user.getPassword(), request.password())){
                     throw new IllegalAccessError();
                 }
                 return tokenPort.generateToken(user.getId(), TokenType.USER);
