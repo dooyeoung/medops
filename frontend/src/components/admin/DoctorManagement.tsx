@@ -28,6 +28,7 @@ export default function DoctorManagement({ hospitalId }: Props) {
   const [isEditDoctorModalOpen, setIsEditDoctorModalOpen] = useState(false);
   const [editingDoctor, setEditingDoctor] = useState<Doctor | null>(null);
   const [editDoctorName, setEditDoctorName] = useState('');
+  const [isAddingDoctor, setIsAddingDoctor] = useState(false);
 
   const fetchDoctors = async () => {
     if (!hospitalId) return;
@@ -50,6 +51,7 @@ export default function DoctorManagement({ hospitalId }: Props) {
   const handleAddDoctor = async () => {
     if (!newDoctorName.trim() || !hospitalId) return;
 
+    setIsAddingDoctor(true);
     try {
       await createDoctor({
         name: newDoctorName,
@@ -62,6 +64,8 @@ export default function DoctorManagement({ hospitalId }: Props) {
     } catch (error) {
       console.error('Failed to add doctor:', error);
       alert('의사 추가에 실패했습니다.');
+    } finally {
+      setIsAddingDoctor(false);
     }
   };
 
@@ -156,7 +160,9 @@ export default function DoctorManagement({ hospitalId }: Props) {
                   <DialogClose asChild>
                     <Button variant="outline">취소</Button>
                   </DialogClose>
-                  <Button onClick={handleAddDoctor}>추가</Button>
+                  <Button onClick={handleAddDoctor} disabled={isAddingDoctor}>
+                    {isAddingDoctor ? '추가중...' : '추가'}
+                  </Button>
                 </DialogFooter>
               </DialogContent>
             </Dialog>

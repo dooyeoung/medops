@@ -106,6 +106,8 @@ export default function ReservationListTable({
   const [selectedReservationForDoctor, setSelectedReservationForDoctor] = useState<Reservation | null>(null);
   const [doctors, setDoctors] = useState<Doctor[]>([]);
   const [selectedDoctorId, setSelectedDoctorId] = useState('');
+  const [isAssigningDoctor, setIsAssigningDoctor] = useState(false);
+  const [isSavingNote, setIsSavingNote] = useState(false);
 
   const getStatusBadge = (status: Reservation['status']) => {
     const variants = {
@@ -216,6 +218,8 @@ export default function ReservationListTable({
 
   const handleSaveNote = async () => {
     if (!selectedReservationForNote) return;
+
+    setIsSavingNote(true);
     try {
       await updateMedicalRecordNote(
         selectedReservationForNote.id,
@@ -229,6 +233,8 @@ export default function ReservationListTable({
       toast.error('노트 내용 저장 실패.', {
         description: '서버 오류입니다',
       });
+    } finally {
+      setIsSavingNote(false);
     }
   };
 
@@ -326,13 +332,13 @@ export default function ReservationListTable({
   const handleAssignDoctor = async () => {
     if (!selectedReservationForDoctor || !selectedDoctorId || !hospitalId) return;
 
+    setIsAssigningDoctor(true);
     try {
       await assignDoctorToReservation(selectedReservationForDoctor.id, {
         userId: selectedReservationForDoctor.userId,
         hospitalId: hospitalId,
         doctorId: selectedDoctorId,
       });
-
 
       setIsDoctorAssignModalOpen(false);
       setSelectedDoctorId('');
@@ -343,6 +349,8 @@ export default function ReservationListTable({
       toast.error('담당 의사 배정 실패.', {
         description: '서버 오류입니다',
       });
+    } finally {
+      setIsAssigningDoctor(false);
     }
   };
 
@@ -575,8 +583,8 @@ export default function ReservationListTable({
                 취소
               </Button>
             </DialogClose>
-            <Button type="button" onClick={handleSaveNote}>
-              저장
+            <Button type="button" onClick={handleSaveNote} disabled={isSavingNote}>
+              {isSavingNote ? '저장중...' : '저장'}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -614,8 +622,8 @@ export default function ReservationListTable({
             <DialogClose asChild>
               <Button variant="outline">취소</Button>
             </DialogClose>
-            <Button onClick={handleAssignDoctor} disabled={!selectedDoctorId}>
-              배정
+            <Button onClick={handleAssignDoctor} disabled={!selectedDoctorId || isAssigningDoctor}>
+              {isAssigningDoctor ? '배정중...' : '배정'}
             </Button>
           </DialogFooter>
         </DialogContent>
