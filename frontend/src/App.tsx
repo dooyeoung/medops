@@ -12,7 +12,6 @@ import AdminLoginPage from './pages/admin/AdminLoginPage';
 import AdminRegisterPage from './pages/admin/AdminRegisterPage';
 import AdminVerifyInvitationPage from './pages/admin/AdminVerifyInvitationPage';
 import AdminSetupAccountPage from './pages/admin/AdminSetupAccountPage';
-import AdminInvitePage from './pages/admin/AdminInvitePage';
 import AdminLayout from './components/admin/AdminLayout';
 import HospitalSettingsPage from './pages/admin/HospitalSettingsPage';
 import AccountSettingsPage from './pages/admin/AccountSettingsPage';
@@ -52,7 +51,6 @@ function App() {
             <Route path="schedule" element={<SchedulePage />} />
             <Route path="hospital-settings" element={<HospitalSettingsPage />} />
             <Route path="account-settings" element={<AccountSettingsPage />} />
-            <Route path="invite" element={<AdminInvitePage />} />
           </Route>
         </Route>
       </Routes>

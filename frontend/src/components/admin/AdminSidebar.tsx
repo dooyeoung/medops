@@ -6,7 +6,6 @@ const navLinks = [
   { href: '/admin/dashboard', label: '대시보드', icon: BarChart3 },
   { href: '/admin/schedule', label: '스케줄 관리', icon: Calendar },
   { href: '/admin/hospital-settings', label: '병원 관리', icon: Hospital },
-  { href: '/admin/invite', label: '관리자 초대', icon: UserPlus },
 ];
 
 export default function AdminSidebar() {

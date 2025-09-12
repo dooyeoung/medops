@@ -65,6 +65,7 @@ function AdminManagement({ hospitalId }: { hospitalId: string | null }) {
   const [admins, setAdmins] = useState<Admin[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isInviteDialogOpen, setIsInviteDialogOpen] = useState(false);
+  const [isInviting, setIsInviting] = useState(false);
 
   useEffect(() => {
     const fetchAdmins = async () => {
@@ -86,6 +87,7 @@ function AdminManagement({ hospitalId }: { hospitalId: string | null }) {
   }, [hospitalId]);
 
   const handleInviteAdmin = async (formData: AdminInviteFormData) => {
+    setIsInviting(true);
     try {
       await inviteAdmin(formData);
       toast.success('관리자 초대가 완료되었습니다.');
@@ -94,6 +96,8 @@ function AdminManagement({ hospitalId }: { hospitalId: string | null }) {
     } catch (error) {
       toast.error('관리자 초대에 실패했습니다.');
       console.error('Failed to invite admin:', error);
+    } finally {
+      setIsInviting(false);
     }
   };
 
@@ -164,8 +168,8 @@ function AdminManagement({ hospitalId }: { hospitalId: string | null }) {
                 취소
               </Button>
             </DialogClose>
-            <Button type="submit" form="admin-invite-form">
-              초대
+            <Button type="submit" form="admin-invite-form" disabled={isInviting}>
+              {isInviting ? '초대중...' : '초대'}
             </Button>
           </DialogFooter>
         </DialogContent>

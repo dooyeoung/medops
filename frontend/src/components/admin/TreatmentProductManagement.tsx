@@ -102,6 +102,9 @@ export default function TreatmentProductManagement({ hospitalId }: Props) {
   const [isLoading, setIsLoading] = useState(true);
   const [treatmentProducts, setTreatmentProducts] = useState<TreatmentProduct[]>([]);
   const [editingTreatmentProduct, setEditingTreatmentProduct] = useState<TreatmentProduct | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const [deletingProductId, setDeletingProductId] = useState<string | null>(null);
+  const [recoveringProductId, setRecoveringProductId] = useState<string | null>(null);
 
   const fetchTreatmentProducts = useCallback(async () => {
     if (!hospitalId) return;
@@ -131,21 +134,27 @@ export default function TreatmentProductManagement({ hospitalId }: Props) {
   };
 
   const handleRecover = async (productId: string) => {
-    try {
-      await recoverTreatmentProduct(productId);
-      fetchTreatmentProducts();
-      toast.success('상품 복구 성공', {
-        description: '상품을 성공적으로 복구했습니다',
-      });
-    } catch (err: any) {
-      toast.error('상품 복구 실패', {
-        description: '서버 오류입니다',
-      });
+    if (window.confirm('정말로 이 상품을 복구하시겠습니까?')) {
+      setRecoveringProductId(productId);
+      try {
+        await recoverTreatmentProduct(productId);
+        fetchTreatmentProducts();
+        toast.success('상품 복구 성공', {
+          description: '상품을 성공적으로 복구했습니다',
+        });
+      } catch (err: any) {
+        toast.error('상품 복구 실패', {
+          description: '서버 오류입니다',
+        });
+      } finally {
+        setRecoveringProductId(null);
+      }
     }
   };
 
   const handleDelete = async (productId: string) => {
     if (window.confirm('정말로 이 상품을 삭제하시겠습니까?')) {
+      setDeletingProductId(productId);
       try {
         await deleteTreatmentProduct(productId);
         fetchTreatmentProducts();
@@ -156,11 +165,14 @@ export default function TreatmentProductManagement({ hospitalId }: Props) {
         toast.error('상품 삭제 실패', {
           description: '서버 오류입니다',
         });
+      } finally {
+        setDeletingProductId(null);
       }
     }
   };
 
   const handleSave = async (data: Omit<TreatmentProduct, 'id'> | TreatmentProduct) => {
+    setIsSaving(true);
     try {
       if ('id' in data && data.id) {
         await updateTreatmentProduct(data.id, data);
@@ -177,6 +189,8 @@ export default function TreatmentProductManagement({ hospitalId }: Props) {
       toast.error('상품 정보 변경 실패', {
         description: '서버 오류입니다',
       });
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -234,12 +248,22 @@ export default function TreatmentProductManagement({ hospitalId }: Props) {
                           수정
                         </Button>
                         {treatmentProduct.deletedAt ? (
-                          <Button variant="secondary" size="sm" onClick={() => handleRecover(treatmentProduct.id)}>
-                            복구
+                          <Button
+                            variant="secondary"
+                            size="sm"
+                            onClick={() => handleRecover(treatmentProduct.id)}
+                            disabled={recoveringProductId === treatmentProduct.id}
+                          >
+                            {recoveringProductId === treatmentProduct.id ? '복구중...' : '복구'}
                           </Button>
                         ) : (
-                          <Button variant="destructive" size="sm" onClick={() => handleDelete(treatmentProduct.id)}>
-                            삭제
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            onClick={() => handleDelete(treatmentProduct.id)}
+                            disabled={deletingProductId === treatmentProduct.id}
+                          >
+                            {deletingProductId === treatmentProduct.id ? '삭제중...' : '삭제'}
                           </Button>
                         )}
                       </TableCell>
@@ -264,8 +288,8 @@ export default function TreatmentProductManagement({ hospitalId }: Props) {
                 취소
               </Button>
             </DialogClose>
-            <Button type="submit" form="product-form">
-              저장
+            <Button type="submit" form="product-form" disabled={isSaving}>
+              {isSaving ? '저장중...' : '저장'}
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -54,15 +54,14 @@ public class TreatmentProductService implements TreatmentProductUseCase {
 
     @Override
     public void updateTreatmentProduct(UpdateTreatmentProductCommand command) {
+        TreatmentProduct treatmentproduct = loadTreatmentProductPort.loadTreatmentProductById(command.treatmentProductId()).orElseThrow();
         saveTreatmentProductPort.saveTreatmentProduct(
-            TreatmentProduct.builder()
-            .id(command.treatmentProductId())
-            .name(command.name())
-            .description(command.description())
-            .maxCapacity(command.maxCapacity())
-            .price(command.price())
-            .hospitalId(command.hospitalId())
-            .build()
+            treatmentproduct.toBuilder()
+                .name(command.name())
+                .description(command.description())
+                .maxCapacity(command.maxCapacity())
+                .price(command.price())
+                .build()
         );
     }
 

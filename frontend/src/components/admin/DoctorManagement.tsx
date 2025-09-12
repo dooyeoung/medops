@@ -29,6 +29,9 @@ export default function DoctorManagement({ hospitalId }: Props) {
   const [editingDoctor, setEditingDoctor] = useState<Doctor | null>(null);
   const [editDoctorName, setEditDoctorName] = useState('');
   const [isAddingDoctor, setIsAddingDoctor] = useState(false);
+  const [isUpdatingDoctor, setIsUpdatingDoctor] = useState(false);
+  const [deletingDoctorId, setDeletingDoctorId] = useState<string | null>(null);
+  const [recoveringDoctorId, setRecoveringDoctorId] = useState<string | null>(null);
 
   const fetchDoctors = async () => {
     if (!hospitalId) return;
@@ -71,6 +74,7 @@ export default function DoctorManagement({ hospitalId }: Props) {
 
   const handleDelete = async (doctorId: string, doctorName: string) => {
     if (window.confirm('정말로 삭제하시겠습니까?')) {
+      setDeletingDoctorId(doctorId);
       try {
         await deleteDoctor(doctorId);
         await fetchDoctors(); // 의사 목록 새로고침
@@ -82,21 +86,28 @@ export default function DoctorManagement({ hospitalId }: Props) {
         toast.error('의사 삭제 실패', {
           description: '서버 오류입니다',
         });
+      } finally {
+        setDeletingDoctorId(null);
       }
     }
   };
   const handleRecover = async (doctorId: string, doctorName: string) => {
-    try {
-      await recoverDoctor(doctorId);
-      await fetchDoctors(); // 의사 목록 새로고침
-      toast.success('의사 복구 성공', {
-        description: doctorName + ' 의사를 복구했습니다',
-      });
-    } catch (err: any) {
-      console.log(err);
-      toast.error('의사 복구 실패', {
-        description: '서버 오류입니다',
-      });
+    if (window.confirm('정말로 복구하시겠습니까?')) {
+      setRecoveringDoctorId(doctorId);
+      try {
+        await recoverDoctor(doctorId);
+        await fetchDoctors(); // 의사 목록 새로고침
+        toast.success('의사 복구 성공', {
+          description: doctorName + ' 의사를 복구했습니다',
+        });
+      } catch (err: any) {
+        console.log(err);
+        toast.error('의사 복구 실패', {
+          description: '서버 오류입니다',
+        });
+      } finally {
+        setRecoveringDoctorId(null);
+      }
     }
   };
   const handleEditDoctor = (doctor: Doctor) => {
@@ -108,6 +119,7 @@ export default function DoctorManagement({ hospitalId }: Props) {
   const handleUpdateDoctor = async () => {
     if (!editDoctorName.trim() || !editingDoctor) return;
 
+    setIsUpdatingDoctor(true);
     try {
       await updateDoctor(editingDoctor.id, {
         name: editDoctorName,
@@ -126,6 +138,8 @@ export default function DoctorManagement({ hospitalId }: Props) {
       toast.error('의사 정보 수정 실패', {
         description: '서버 오류입니다',
       });
+    } finally {
+      setIsUpdatingDoctor(false);
     }
   };
   return (
@@ -202,12 +216,22 @@ export default function DoctorManagement({ hospitalId }: Props) {
                           수정
                         </Button>
                         {doctor.deletedAt ? (
-                          <Button variant="secondary" size="sm" onClick={() => handleRecover(doctor.id, doctor.name)}>
-                            복구
+                          <Button
+                            variant="secondary"
+                            size="sm"
+                            onClick={() => handleRecover(doctor.id, doctor.name)}
+                            disabled={recoveringDoctorId === doctor.id}
+                          >
+                            {recoveringDoctorId === doctor.id ? '복구중...' : '복구'}
                           </Button>
                         ) : (
-                          <Button variant="destructive" size="sm" onClick={() => handleDelete(doctor.id, doctor.name)}>
-                            삭제
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            onClick={() => handleDelete(doctor.id, doctor.name)}
+                            disabled={deletingDoctorId === doctor.id}
+                          >
+                            {deletingDoctorId === doctor.id ? '삭제중...' : '삭제'}
                           </Button>
                         )}
                       </TableCell>
@@ -240,7 +264,9 @@ export default function DoctorManagement({ hospitalId }: Props) {
             <DialogClose asChild>
               <Button variant="outline">취소</Button>
             </DialogClose>
-            <Button onClick={handleUpdateDoctor}>수정</Button>
+            <Button onClick={handleUpdateDoctor} disabled={isUpdatingDoctor}>
+              {isUpdatingDoctor ? '수정중...' : '수정'}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
