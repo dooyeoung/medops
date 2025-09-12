@@ -1,5 +1,6 @@
 package com.medops.adapter.out.persistence.eventstore.adapter;
 
+import com.medops.adapter.out.persistence.eventstore.registry.EventTypeRegistry;
 import com.medops.adapter.out.persistence.mongodb.document.MedicalRecordEventDocument;
 import com.medops.adapter.out.persistence.mongodb.repository.MedicalRecordEventDocumentRepository;
 import com.medops.application.port.out.MedicalRecordEventStorePort;
@@ -21,6 +22,7 @@ public class MedicalRecordEventStoreAdapter  implements MedicalRecordEventStoreP
 
     private final MedicalRecordEventDocumentRepository repository;
     private final ObjectMapper objectMapper;
+    private final EventTypeRegistry eventTypeRegistry;
 
     public void collectEvents(
         String recordId,
@@ -59,8 +61,7 @@ public class MedicalRecordEventStoreAdapter  implements MedicalRecordEventStoreP
         List<Object> events = documents.stream()
             .map(document -> {
                 try {
-                    Class<?> eventClass = Class.forName("com.medops.application.eventsourcing.event." + document.getEventType());
-                    System.out.println("converting : " + eventClass);
+                    Class<?> eventClass = eventTypeRegistry.getEventClass(document.getEventType());
                     return objectMapper.convertValue(document.getPayload(), eventClass);
                 } catch (Exception e) {
                     e.printStackTrace();

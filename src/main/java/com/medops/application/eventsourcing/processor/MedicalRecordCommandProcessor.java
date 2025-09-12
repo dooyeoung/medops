@@ -1,5 +1,6 @@
 package com.medops.application.eventsourcing.processor;
 
+import com.medops.adapter.out.persistence.mongodb.repository.MedicalRecordSnapshotDocumentRepository;
 import com.medops.application.eventsourcing.command.executor.*;
 import com.medops.application.eventsourcing.handler.*;
 import com.medops.application.port.in.usecase.ReservationValidationUseCase;
