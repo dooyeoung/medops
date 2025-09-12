@@ -1,10 +1,12 @@
 package com.medops.application.eventsourcing.processor;
 
+import com.medops.adapter.out.persistence.mongodb.repository.MedicalRecordSnapshotDocumentRepository;
 import com.medops.application.eventsourcing.command.executor.CommandExecutor;
 import com.medops.application.eventsourcing.handler.EventHandler;
 import com.medops.application.port.out.LoadMedicalRecordSnapshotPort;
 import com.medops.application.port.out.MedicalRecordEventStorePort;
 import com.medops.application.eventsourcing.event.MedicalRecordEvent;
+import com.medops.application.port.out.SaveMedicalRecordSnapshotPort;
 import com.medops.domain.model.MedicalRecord;
 import com.medops.domain.model.MedicalRecordSnapshot;
 import com.medops.application.eventsourcing.command.StreamCommand;
@@ -26,6 +28,7 @@ public class MedicalRecordCommandProcessor {
 
     private final MedicalRecordEventStorePort medicalRecordEventStorePort;
     private final LoadMedicalRecordSnapshotPort loadMedicalRecordSnapshotPort;
+    private final SaveMedicalRecordSnapshotPort saveMedicalRecordSnapshotPort;
     private final ApplicationEventPublisher eventPublisher;
     private final CommandExecutorFactory commandExecutorFactory;
     private final EventHandlerFactory eventHandlerFactory;
@@ -95,7 +98,7 @@ public class MedicalRecordCommandProcessor {
         MedicalRecordSnapshot snapshotAfter = applyEvents(snapshotBefore, newEvents);
 
         if (shouldCreateSnapshot(snapshotAfter)) {
-//            snapshotRepository.save(snapshotAfter);
+            saveMedicalRecordSnapshotPort.SaveMedicalRecordSnapshot(snapshotAfter);
             System.out.println("snapshot 저장");
         }
     }
