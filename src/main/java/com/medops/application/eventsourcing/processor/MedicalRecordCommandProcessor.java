@@ -49,9 +49,9 @@ public class MedicalRecordCommandProcessor {
         MedicalRecord newState = handler.handleEvent(currentSnapshot.getState(), event);
 
         return MedicalRecordSnapshot.builder()
-            .id(UUID.randomUUID().toString())
-            .createdAt(Instant.now())
+            .id(currentSnapshot.getId())
             .recordId(currentSnapshot.getRecordId())
+            .createdAt(Instant.now())
             .state(newState)
             .version(currentSnapshot.getVersion() + 1)
             .build();
@@ -97,8 +97,8 @@ public class MedicalRecordCommandProcessor {
 
         MedicalRecordSnapshot snapshotAfter = applyEvents(snapshotBefore, newEvents);
 
+        saveMedicalRecordSnapshotPort.SaveMedicalRecordSnapshot(snapshotAfter);
         if (shouldCreateSnapshot(snapshotAfter)) {
-            saveMedicalRecordSnapshotPort.SaveMedicalRecordSnapshot(snapshotAfter);
             System.out.println("snapshot 저장");
         }
     }

@@ -8,13 +8,13 @@ import java.util.Map;
 @Component
 public class EventTypeRegistry {
     private static final Map<String, Class<? extends MedicalRecordEvent>> EVENT_TYPE_MAP = Map.of(
-        Canceled.class.getName(), Canceled.class,
-        Completed.class.getName(), Completed.class,
-        Confirmed.class.getName(), Confirmed.class,
-        DoctorAssigned.class.getName(), DoctorAssigned.class,
-        NoteUpdated.class.getName(), NoteUpdated.class,
-        Pending.class.getName(), Pending.class,
-        ReservationCreated.class.getName(), ReservationCreated.class
+        Canceled.class.getSimpleName(), Canceled.class,
+        Completed.class.getSimpleName(), Completed.class,
+        Confirmed.class.getSimpleName(), Confirmed.class,
+        DoctorAssigned.class.getSimpleName(), DoctorAssigned.class,
+        NoteUpdated.class.getSimpleName(), NoteUpdated.class,
+        Pending.class.getSimpleName(), Pending.class,
+        ReservationCreated.class.getSimpleName(), ReservationCreated.class
     );
 
     public Class<? extends MedicalRecordEvent> getEventClass(String eventType) {
