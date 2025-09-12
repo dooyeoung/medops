@@ -57,7 +57,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             }
           } else if (role === 'admin') {
             try {
-              console.log('Fetching admin data...');
               const adminResponse = await getCurrentAdmin();
               if (adminResponse.result.resultCode === 200) {
                 setAdmin(adminResponse.body);

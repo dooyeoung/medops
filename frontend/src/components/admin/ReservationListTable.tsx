@@ -199,7 +199,6 @@ export default function ReservationListTable({
 
         const fetchedHours = hoursResponse.body;
         setBusinessHours(fetchedHours);
-        console.log(fetchedHours);
       } catch (error) {
         console.error('Failed to fetch data for next reservation:', error);
       } finally {

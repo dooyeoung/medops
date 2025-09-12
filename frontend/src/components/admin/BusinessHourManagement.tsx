@@ -48,7 +48,6 @@ export default function BusinessHourManagement({ hospitalId }: Props) {
 
   const handleEditBusinessHour = (businessHour: BusinessHour) => {
     // 현재 설정된 영업시간을 복사해서 편집용으로 설정
-    console.log('Selected business hour:', businessHour);
     setEditingBusinessHour({ ...businessHour });
     setIsBusinessHourModalOpen(true);
   };

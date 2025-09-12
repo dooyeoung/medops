@@ -69,7 +69,6 @@ export default function ReservationForm({
     const operatingDay = businessHours.find((bh) => bh.dayOfWeek === dayName);
 
     if (!operatingDay || operatingDay.closed) {
-      console.log('해당 요일 휴무');
       setAllTimePoints([]);
       return;
     }
@@ -77,9 +76,6 @@ export default function ReservationForm({
     const generateAllTimePoints = () => {
       const points = [];
       const interval = 30; // 30분 간격
-
-      console.log('운영시간:', operatingDay.openTime, '-', operatingDay.closeTime);
-      console.log('휴게시간:', operatingDay.breakStartTime, '-', operatingDay.breakEndTime);
 
       const dateString = selectedDate.toISOString().split('T')[0];
       const currentTime = new Date(`${dateString}T${operatingDay.openTime}`);
@@ -92,12 +88,9 @@ export default function ReservationForm({
       while (currentTime <= closeTime) {
         const isBreakTime =
           breakStartTime && breakEndTime && currentTime >= breakStartTime && currentTime < breakEndTime;
-        if (!isBreakTime) {
-          points.push(currentTime.toTimeString().slice(0, 5));
-        }
+        points.push(currentTime.toTimeString().slice(0, 5));
         currentTime.setMinutes(currentTime.getMinutes() + interval);
       }
-      console.log('생성된 시간 슬롯:', points);
       return points;
     };
 
@@ -134,22 +127,29 @@ export default function ReservationForm({
       return;
     }
 
-    const dateString = selectedDate.toISOString().split('T')[0];
+    // 한국 시간대로 날짜를 포맷 (UTC 변환 방지)
+    const year = selectedDate.getFullYear();
+    const month = String(selectedDate.getMonth() + 1).padStart(2, '0');
+    const day = String(selectedDate.getDate()).padStart(2, '0');
+    const dateString = `${year}-${month}-${day}`;
+
+    const startTimeISO = `${dateString}T${selectedStartTime}:00.000+09:00`;
+    const endTimeISO = `${dateString}T${selectedEndTime}:00.000+09:00`;
 
     if (forAdmin) {
       onSubmit({
         hospitalId,
         treatmentProductId: selectedProduct,
-        startTime: new Date(`${dateString}T${selectedStartTime}`).toISOString(),
-        endTime: new Date(`${dateString}T${selectedEndTime}`).toISOString(),
+        startTime: startTimeISO,
+        endTime: endTimeISO,
         note,
       });
     } else {
       onSubmit({
         hospitalId,
         treatmentProductId: selectedProduct,
-        startTime: new Date(`${dateString}T${selectedStartTime}`).toISOString(),
-        endTime: new Date(`${dateString}T${selectedEndTime}`).toISOString(),
+        startTime: startTimeISO,
+        endTime: endTimeISO,
         userMemo,
       });
     }
