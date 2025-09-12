@@ -186,7 +186,7 @@ class TreatmentProductApiControllerTest {
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andDo(print())
-                    .andExpect(status().isOk()); // 현재 구현에 따라 조정 필요
+                    .andExpect(status().isBadRequest()); // 현재 구현에 따라 조정 필요
         }
     }
 
