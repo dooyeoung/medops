@@ -22,7 +22,7 @@ import java.util.function.Function;
 @RequiredArgsConstructor
 public class MedicalRecordCommandProcessor {
 
-    private static final int SNAPSHOT_INTERVAL = 100;
+    private static final int SNAPSHOT_INTERVAL = 5;
 
     private final MedicalRecordEventStorePort medicalRecordEventStorePort;
     private final LoadMedicalRecordSnapshotPort loadMedicalRecordSnapshotPort;
@@ -88,9 +88,8 @@ public class MedicalRecordCommandProcessor {
 
         MedicalRecordSnapshot snapshotAfter = applyEvents(snapshotBefore, newEvents);
 
-        saveMedicalRecordSnapshotPort.SaveMedicalRecordSnapshot(snapshotAfter);
         if (shouldCreateSnapshot(snapshotAfter)) {
-            System.out.println("snapshot 저장");
+            saveMedicalRecordSnapshotPort.SaveMedicalRecordSnapshot(snapshotAfter);
         }
     }
 
