@@ -8,5 +8,5 @@ import java.util.List;
 public interface MedicalRecordEventDocumentRepository extends MongoRepository<MedicalRecordEventDocument, String> {
     List<MedicalRecordEventDocument> findAllByRecordIdAndVersionGreaterThanEqualOrderByVersionAsc(String recordId, Integer version);
 
-    List<MedicalRecordEventDocument> getAllEventsByRecordId(String recordId);
+    List<MedicalRecordEventDocument> getAllByRecordId(String recordId);
 }

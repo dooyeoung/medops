@@ -17,6 +17,6 @@ public class MedicalRecordEventPersistenceAdapter implements LoadMedicalRecordEv
 
     @Override
     public List<MedicalRecordEvent> loadEventsByRecordId(String recordId) {
-        return medicalRecordEventDocumentRepository.getAllEventsByRecordId(recordId).stream().map(medicalRecordEventConverter::toDomain).toList();
+        return medicalRecordEventDocumentRepository.getAllByRecordId(recordId).stream().map(medicalRecordEventConverter::toDomain).toList();
     }
 }
