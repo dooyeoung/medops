@@ -76,8 +76,6 @@ src/main/java/com/medops/
 │
 └── config/                      # 설정 클래스 (Spring Configuration)
 ```
-
-### 레이어 간 통신 관계
 ![ex_screenshot](images/hexagonal.png)
 
 애플리케이션의 데이터는 다음과 같이 흐릅니다:
@@ -199,13 +197,7 @@ npm install
 npm run dev
 ```
 
-##  API 문서
-
-서버 실행 후 다음 URL에서 API 문서를 확인할 수 있습니다:
-- **Swagger UI**: http://localhost:8080/swagger-ui.html
-- **OpenAPI JSON**: http://localhost:8080/v3/api-docs
----
-##  백엔드 테스트
+###  백엔드 테스트
 
 ```bash
 # 전체 테스트 실행
@@ -217,4 +209,11 @@ npm run dev
 # 커버리지 확인 (80% 이상 필수)
 ./gradlew jacocoTestCoverageVerification
 ```
+
+---
+##  API 문서
+
+서버 실행 후 다음 URL에서 API 문서를 확인할 수 있습니다:
+- **Swagger UI**: http://localhost:8080/swagger-ui.html
+- **OpenAPI JSON**: http://localhost:8080/v3/api-docs
 
