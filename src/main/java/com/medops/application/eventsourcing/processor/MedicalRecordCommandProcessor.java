@@ -16,7 +16,6 @@ import org.springframework.stereotype.Service;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Function;
 
 @Service
 @RequiredArgsConstructor
@@ -30,7 +29,6 @@ public class MedicalRecordCommandProcessor {
     private final ApplicationEventPublisher eventPublisher;
     private final CommandExecutorFactory commandExecutorFactory;
     private final EventHandlerFactory eventHandlerFactory;
-    private final Function<String, MedicalRecord> seedFactory;
 
     @SuppressWarnings("unchecked")
     private <T extends StreamCommand> Iterable<MedicalRecordEvent> produceEventsForCommand(MedicalRecord state, T command) {
@@ -64,7 +62,7 @@ public class MedicalRecordCommandProcessor {
 
     public MedicalRecordSnapshot rehydrateState(String recordId) {
         Optional<MedicalRecordSnapshot> optionalLatestSnapshot = loadMedicalRecordSnapshotPort.loadMedicalRecordSnapshot(recordId);
-        MedicalRecordSnapshot startingPoint = optionalLatestSnapshot.orElseGet(() -> MedicalRecordSnapshot.seed(recordId, seedFactory.apply(recordId)));
+        MedicalRecordSnapshot startingPoint = optionalLatestSnapshot.orElseGet(() -> MedicalRecordSnapshot.seed(recordId, MedicalRecord.seedFactory(recordId)));
 
         List<Object> subsequentEvents = medicalRecordEventStorePort.queryEvents(recordId, startingPoint.getVersion() + 1);
         return applyEvents(startingPoint, subsequentEvents);
