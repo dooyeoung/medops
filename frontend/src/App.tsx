@@ -1,6 +1,6 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Layout from './components/layout/Layout';
-import HomePage from './pages/HomePage';
+
 import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
 import HospitalListPage from './pages/HospitalListPage';
@@ -27,7 +27,7 @@ function App() {
       <Routes>
         {/* Public routes with the main layout */}
         <Route path="/" element={<Layout />}>
-          <Route index element={<HomePage />} />
+          <Route index element={<Navigate to="/login" replace />} />
           <Route path="login" element={<LoginPage />} />
           <Route path="signup" element={<SignupPage />} />
           <Route path="admin/login" element={<AdminLoginPage />} />
