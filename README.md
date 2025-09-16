@@ -78,23 +78,7 @@ src/main/java/com/medops/
 ```
 
 ### 레이어 간 통신 관계
-
-```mermaid
-graph LR
-    Controller[ Controller] --> UseCase[ UseCase]
-    UseCase -.-> Service[️ Service]
-    Service --> Port[ Port]
-    Port -.-> Adapter[ Adapter]
-    Adapter --> DB[( Database)]
-    
-    classDef interface fill:#f3e5f5,stroke:#7b1fa2,stroke-dasharray: 5 5
-    classDef implementation fill:#e8f5e8,stroke:#2e7d32
-    classDef external fill:#ffebee,stroke:#c62828
-    
-    class UseCase,Port interface
-    class Controller,Service,Adapter implementation
-    class DB,Domain external
-```
+![ex_screenshot](images/hexagonal.png)
 
 애플리케이션의 데이터는 다음과 같이 흐릅니다:
 `웹 요청` → `컨트롤러` → `유스케이스` → `서비스` → `포트` → `어댑터` → `데이터베이스`
@@ -108,26 +92,14 @@ graph LR
 이를 통해 외부 시스템(데이터베이스, API 등)이 변경되어도 핵심 비즈니스 로직은 영향받지 않습니다.
 
 ### 이벤트 소싱 구현
+![ex_screenshot](images/event_sourcing.png)
 
-의료 기록 관리에 이벤트 소싱 패턴을 적용하여 모든 변경사항을 추적합니다:
+의료 기록 관리에 이벤트 소싱 패턴을 적용하여 모든 변경사항을 추적합니다.
+이벤트 소싱을 통해 예약 생성부터 확정, 취소까지의 모든 과정이 이벤트로 기록되어 완전한 감사 추적이 가능합니다.
+"왜 이 예약이 취소되었을까?"와 같은 질문에 대해 이벤트 히스토리를 조회하여 디버깅을 할 수 있으며,
+스냅샷을 활용한 빠른 현재 상태 조회와 필요시에만 이벤트를 재생하는 방식으로 성능을 최적화했습니다.
 
-```mermaid
-flowchart LR
-    Controller -->|Message| Proseccor
-
-    Proseccor -->|QueryEvents| EventStore
-    EventStore -->|Events| Proseccor
-
-    EventStore --> Database
-
-    EventStore -->|CollectEvents| Proseccor
-
-    Proseccor -->|Command| CommandExecutors
-    CommandExecutors -->|Events| Proseccor
-
-    Proseccor -->|Events| EventHandlers
-    EventHandlers -->|State| Proseccor
-```
+또한 시스템 장애나 데이터 손실이 발생하더라도 저장된 모든 이벤트를 순차적으로 재생하여 완전한 상태 복원이 가능하므로 높은 신뢰성과 복구 능력을 제공합니다.
 
 #### 1️⃣ 새로운 예약 생성
 ```
@@ -164,13 +136,21 @@ Controller → Processor → EventStore [Query Events] → EventHandler
   - 해당 시점의 정확한 상태 복원
 ```
 
-**이벤트 소싱의 핵심 이점:**
+---
+## 주요기능
+### 예약 관리 시스템
+![adminpage](images/admin_page.gif)
+이 기능의 핵심은 예약의 생성부터 완료까지 모든 상태 변경을 이벤트로 기록하여 데이터의 변경 과정을 완벽하게 추적하는 이벤트 소싱 기반의 상태 관리입니다. 이를 통해 특정 시점의 상태를 정교하게 복원할 수 있는 안정적인 시스템을 구축했습니다.
 
-이벤트 소싱을 통해 예약 생성부터 확정, 취소까지의 모든 과정이 이벤트로 기록되어 완전한 감사 추적이 가능합니다. 
-"왜 이 예약이 취소되었을까?"와 같은 질문에 대해 이벤트 히스토리를 조회하여 디버깅을 할 수 있으며, 
-스냅샷을 활용한 빠른 현재 상태 조회와 필요시에만 이벤트를 재생하는 방식으로 성능을 최적화했습니다. 
+### 실시간 알림
+![sse](images/admin_sse.gif)
+Spring Boot의 SseEmitter를 활용하여 서버에서 클라이언트로 단방향 데이터 푸시가 가능한 실시간 알림 기능을 구현했습니다. WebSocket에 비해 가볍고 구현이 용이한 장점이 있습니다. 여러 관리자가 별도의 새로고침 없이 최신 예약 현황을 동기화할 수 있어, 다중 사용자 환경에서의 운영 효율성과 데이터 일관성을 크게 향상시켰습니다.
 
-또한 시스템 장애나 데이터 손실이 발생하더라도 저장된 모든 이벤트를 순차적으로 재생하여 완전한 상태 복원이 가능하므로 높은 신뢰성과 복구 능력을 제공합니다.
+### 관리자 대시보드
+![dashboard](images/admin_dashboard.gif)
+관리자 대시보드는 CQRS 패턴을 적용하여 복잡한 조회 요건을 효율적으로 처리하도록 설계했습니다. 쓰기(Command) 모델과 분리된 읽기(Query) 전용 모델을 통해 실시간 예약 현황 및 매출 통계 조회의 성능을 최적화했습니다. 또한, 조회된 통계 데이터는 EChart.js와 연동하여 동적인 차트로 시각화함으로써, 관리자가 비즈니스 현황을 직관적으로 파악하고 데이터 기반의 의사결정을 내릴 수 있도록 지원합니다.
+
+
 
 ---
 ## 시작하기
@@ -225,9 +205,7 @@ npm run dev
 - **Swagger UI**: http://localhost:8080/swagger-ui.html
 - **OpenAPI JSON**: http://localhost:8080/v3/api-docs
 ---
-##  테스트
-
-### 백엔드 테스트
+##  백엔드 테스트
 
 ```bash
 # 전체 테스트 실행
@@ -240,17 +218,3 @@ npm run dev
 ./gradlew jacocoTestCoverageVerification
 ```
 
-### 프론트엔드 테스트
-
-```bash
-cd frontend
-
-# 타입 체크
-npm run build:check
-
-# 린트 검사
-npm run lint
-
-# 코드 포맷팅
-npm run format
-```
