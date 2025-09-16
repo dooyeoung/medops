@@ -23,7 +23,7 @@ demo : https://medops.vercel.app/
 
 ### 프론트엔드 (React + TypeScript)
 - React + TypeScript + Vite
-- Tailwind CSS (스타일링), ECharts/Recharts (차트)
+- Tailwind CSS (스타일링), ECharts (차트)
 
 ### 백엔드 디렉토리 구조 (헥사고날 아키텍처)
 
