@@ -153,16 +153,9 @@ Spring Boot의 SseEmitter를 활용하여 서버에서 클라이언트로 단방
 ---
 ## 시작하기
 
-### 사전 요구사항
-
-- **Java 17+**
-- **Node.js 18+**
-- **MongoDB** (로컬 또는 클라우드)
-- **Redis** (로컬 또는 클라우드)
-
 ### 환경 변수 설정
 
-루트 디렉토리에 `.env.local` 파일 생성:
+루트 디렉토리에 `.env.local` 파일 생성
 
 ```bash
 # Database
