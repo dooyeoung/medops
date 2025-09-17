@@ -5,6 +5,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/componen
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Toaster, toast } from 'sonner';
 
 export default function LoginPage() {
@@ -78,6 +79,26 @@ export default function LoginPage() {
                 <Link to="/admin/login" className="text-green-600 hover:underline font-medium">
                   관리자 로그인
                 </Link>
+              </p>
+              <p className="text-gray-600">
+                체험을 원하시나요?{' '}
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <span className="text-yellow-600 hover:underline font-medium cursor-pointer">
+                      데모계정 확인하기
+                    </span>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-4">
+                    <div className="text-sm text-left">
+                      <p>
+                        <span className="font-semibold">이메일:</span> testuser1@gmail.com
+                      </p>
+                      <p>
+                        <span className="font-semibold">비밀번호:</span> 1234!@#$
+                      </p>
+                    </div>
+                  </PopoverContent>
+                </Popover>
               </p>
             </div>
           </CardFooter>
