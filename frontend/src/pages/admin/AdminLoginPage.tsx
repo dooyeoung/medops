@@ -112,6 +112,9 @@ export default function AdminLoginPage() {
                   </PopoverContent>
                 </Popover>
               </p>
+              <p className="text-gray-600">
+                네트워크 문제로 동작에 문제가 있는경우 데모 영상을 참고하세요
+              </p>
             </div>
           </CardFooter>
         </form>
