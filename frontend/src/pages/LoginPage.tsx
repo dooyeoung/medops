@@ -67,21 +67,21 @@ export default function LoginPage() {
               로그인
             </Button>
 
-            <div className="text-center text-sm space-y-2">
-              <p className="text-gray-600">
-                계정이 없으신가요?{' '}
+            <div className="text-center text-sm space-y-2 w-full">
+              <div className="text-gray-600 flex justify-between">
+                <div>계정이 없으신가요? </div>
                 <Link to="/signup" className="text-blue-600 hover:underline font-medium">
                   회원가입
                 </Link>
-              </p>
-              <p className="text-gray-600">
-                관리자이신가요?{' '}
+              </div>
+              <div className="text-gray-600 flex justify-between">
+                <div>관리자이신가요? </div>
                 <Link to="/admin/login" className="text-green-600 hover:underline font-medium">
                   관리자 로그인
                 </Link>
-              </p>
-              <p className="text-gray-600">
-                체험을 원하시나요?{' '}
+              </div>
+              <div className="text-gray-600 flex justify-between">
+                <div>체험을 원하시나요? </div>
                 <Popover>
                   <PopoverTrigger asChild>
                     <span className="text-yellow-600 hover:underline font-medium cursor-pointer">
@@ -99,7 +99,17 @@ export default function LoginPage() {
                     </div>
                   </PopoverContent>
                 </Popover>
-              </p>
+              </div>
+
+              <div className="text-gray-600 flex justify-between">
+                <div>네트워크 문제로 동작 이상이 있다면 시연 영상을 확인해주세요.</div>
+                <div className="text-purple-600 hover:underline font-medium cursor-pointer">
+                  <a target="_blank" href="https://youtu.be/RTyMSvyRTkM?si=yhr-QQ09WGWRGzsc">
+                    {' '}
+                    시연 영상
+                  </a>
+                </div>
+              </div>
             </div>
           </CardFooter>
         </form>
