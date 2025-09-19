@@ -113,7 +113,7 @@ export default function AdminLoginPage() {
                 </Popover>
               </div>
               <div className="text-gray-600 flex justify-between">
-                <div>네트워크 문제로 동작 이상이 있다면 시연 영상을 확인해주세요.</div>
+                <div>네트워크 문제로 동작 이상 시, 데모 영상을 확인해 주세요.</div>
                 <div className="text-purple-600 hover:underline font-medium cursor-pointer">
                   <a target="_blank" href="https://youtu.be/RTyMSvyRTkM?si=yhr-QQ09WGWRGzsc">
                     {' '}
